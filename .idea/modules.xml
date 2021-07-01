@@ -2,8 +2,8 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/FlagCatcher.iml" filepath="$PROJECT_DIR$/.idea/modules/FlagCatcher.iml" />
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/app/FlagCatcher.app.iml" filepath="$PROJECT_DIR$/.idea/modules/app/FlagCatcher.app.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/Flag_Catcher.iml" filepath="$PROJECT_DIR$/.idea/modules/Flag_Catcher.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/app/Flag_Catcher.app.iml" filepath="$PROJECT_DIR$/.idea/modules/app/Flag_Catcher.app.iml" />
     </modules>
   </component>
 </project>
