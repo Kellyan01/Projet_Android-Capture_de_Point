@@ -14,13 +14,3 @@ fun main(args: Array<String>) {
     runApplication<PokemongoApplication>(*args)
 }
 
-@RestController
-class MyRestController {
-    //http://localhost:8080/test
-    @GetMapping("/test")
-    fun testMethode(): String {
-        println("/test")
-        return "helloWorld"
-    }
-}
-
