@@ -1,27 +1,38 @@
 package com.pokemongo.flagcatcher
 
-import androidx.appcompat.app.AppCompatActivity
+import android.Manifest
+import android.content.Intent
+import android.content.pm.PackageManager
+import android.location.Location
+import android.location.LocationManager
 import android.os.Bundle
+import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
-
+import android.view.View
+import android.widget.ProgressBar
+import android.widget.TextView
+import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
+import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MarkerOptions
 import com.pokemongo.flagcatcher.databinding.ActivityMapsBinding
-import android.content.Intent
-import android.util.Log
-import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.pokemongo.flagcatcher.model.beans.CoordinateBean
+import com.pokemongo.flagcatcher.model.utils.WSUtils
 import kotlin.concurrent.thread
 
 class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
 
     private lateinit var mMap: GoogleMap
     private lateinit var binding: ActivityMapsBinding
+    private var tv: TextView? = null
+    private var progressBar: ProgressBar? = null
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -70,11 +81,11 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
                 Log.w("MY TAG MAKER", "AFFICHAGE MARKER")
             }
         }
+
+        tv = findViewById(R.id.tv)
+        progressBar = findViewById(R.id.progressBar)
     }
 
-    /////////////////////////////////////////////////////
-    //////////////         MENU         /////////////////
-    /////////////////////////////////////////////////////
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         menu?.add(0,0,0,"Accueil")
         return super.onCreateOptionsMenu(menu)
@@ -82,8 +93,8 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
 
-            val intent=Intent(this, MainActivity::class.java)
-            startActivity(intent)
+        val intent=Intent(this, MainActivity::class.java)
+        startActivity(intent)
 
         return super.onOptionsItemSelected(item)
     }
@@ -105,4 +116,97 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         mMap.addMarker(MarkerOptions().position(sydney).title("Marker in Sydney"))
         mMap.moveCamera(CameraUpdateFactory.newLatLng(sydney))
     }
+
+
+
+    ////////////////////////////////////////////////////////////////////////////////////////
+    /////////////////               Localisation                      //////////////////////
+    ////////////////////////////////////////////////////////////////////////////////////////
+
+
+
+    //Callback de la demande de permission
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<String?>,
+        grantResults: IntArray
+    ) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
+            == PackageManager.PERMISSION_GRANTED
+        ) {
+            //On a la permission
+            afficherLocalisation()
+        } else {
+            tv?.setText("Il faut la permission")
+        }
+    }
+
+    private fun afficherLocalisation() {
+        val location = getLastKnownLocation()
+        if (location != null) {
+            tv!!.text = location.latitude.toString() + " " + location.longitude
+        } else {
+            tv!!.text = "La localisation est nulle"
+        }
+        showProgressBar(true)
+        Thread {
+            try {
+                //Chercher la donnée
+                val coord: CoordinateBean = WSUtils.loadCoord()
+                //Mettre à jour l'IHM
+                showCoordinateBeanOnUIThread(coord)
+            } catch (e: Exception) {
+                //Affiche le detail de l'erreur dans la console
+                e.printStackTrace()
+                showErrorOnUiThread(e.message)
+            }
+            showProgressBar(false)
+        }.start()
+    }
+
+    private fun getLastKnownLocation(): Location? {
+        //Contrôle de la permission
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) ==
+            PackageManager.PERMISSION_DENIED
+        ) {
+            return null
+        }
+        val lm = getSystemService(LOCATION_SERVICE) as LocationManager
+        var bestLocation: Location? = null
+        //on teste chaque provider(réseau, GPS...) et on garde la localisation avec la meilleurs précision
+        for (provider in lm.getProviders(true)) {
+            val l = lm.getLastKnownLocation(provider)
+            if (l != null && (bestLocation == null || l.accuracy < bestLocation.accuracy)) {
+                bestLocation = l
+            }
+        }
+        return bestLocation
+    }
+
+    /* -------------------------------- */
+    // Mettre à jour l'IHM
+    /* -------------------------------- */
+
+
+    fun showCoordinateBeanOnUIThread(coordBrean: CoordinateBean) {
+        runOnUiThread { tv?.setText(coordBrean.id_coordinate) }
+    }
+
+    fun showErrorOnUiThread(errorMessage: String?) {
+        runOnUiThread { tv!!.text = "Erreur : $errorMessage" }
+    }
+
+    fun showProgressBar(show: Boolean) {
+        runOnUiThread {
+            if (show) {
+                progressBar?.setVisibility(View.VISIBLE)
+            } else {
+                progressBar?.setVisibility(View.GONE)
+            }
+        }
+    }
+
+
+
 }
