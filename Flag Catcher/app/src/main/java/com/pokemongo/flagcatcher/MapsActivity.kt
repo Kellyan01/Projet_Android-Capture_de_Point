@@ -13,7 +13,10 @@ import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MarkerOptions
 import com.pokemongo.flagcatcher.databinding.ActivityMapsBinding
 import android.content.Intent
+import android.util.Log
+import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.pokemongo.flagcatcher.model.beans.CoordinateBean
+import kotlin.concurrent.thread
 
 class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
 
@@ -31,21 +34,42 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
             .findFragmentById(R.id.map) as SupportMapFragment
         mapFragment.getMapAsync(this)
 
+        thread {
+            //Affichage simple d'un objet toulouse de type CoordinateBean de coordonnée 43,3512 - 1,2938
+            //Création de l'objet toulouse
+            val toulouse = CoordinateBean(1, 1.2938, 43.3512)
+            Log.w("MY TAG toulouse", "CREATION DE TOULOUSE")
 
-        /*//Affichage simple d'un objet toulouse de type CoordinateBean de coordonnée 43,3512 - 1,2938
-        //Création de l'objet toulouse
-        val toulouse = CoordinateBean(1, 1.2938, 43.3512)
+            //Transformation de Toulouse en objet LatLng
+            val toulouseLatLng = LatLng(toulouse.lat_coordinate, toulouse.long_coordinate)
+            Log.w("MY TAG toulouse", "CREATION DE TOULOUSE LATLANG")
 
-        //Transformation de Toulouse en objet LatLng
-        val toulouseLatLng = LatLng(toulouse.lat_coordinate, toulouse.long_coordinate)
-*/
-        /*//Modification de la aprtie graphique
-        runOnUiThread {
-            //On efface les point existant de la MAP
-            mMap.clear()
+            //Modification de la partie graphique
+            runOnUiThread {
+                //On efface les point existant de la MAP
+                mMap.clear()
+                Log.w("MY TAG MAP", "Effacement des points")
 
+                //Centrage de la caméra sur les coordonnées de Toulouse avec zoom x5
+                mMap.animateCamera(
+                    CameraUpdateFactory.newLatLngZoom(toulouseLatLng, 5f)
+                )
+                Log.w("MY TAG MAP", "Mouvement CAMERA")
 
-        }*/
+                //Création et Affichage du Marker
+                var markerToulouse = MarkerOptions()
+                markerToulouse.position(
+                    LatLng(toulouse.lat_coordinate, toulouse.long_coordinate)
+                )
+                Log.w("MY TAG MAKER", "CREATION MARKER")
+                markerToulouse.icon(
+                    BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN)
+                )
+                Log.w("MY TAG MAKER", "ICON MARKER")
+                mMap.addMarker(markerToulouse)
+                Log.w("MY TAG MAKER", "AFFICHAGE MARKER")
+            }
+        }
     }
 
     /////////////////////////////////////////////////////
