@@ -1,9 +1,7 @@
 package com.pokemongo.pokemongo
 
-import CoordinateBean
+import com.pokemongo.pokemongo.bean.CoordinateBean
 import org.springframework.web.bind.annotation.GetMapping
-import org.springframework.web.bind.annotation.PostMapping
-import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RestController
 
 
@@ -22,7 +20,7 @@ import org.springframework.web.bind.annotation.RestController
         fun StudentBeantestJson(): CoordinateBean {
             println("//getCoordinate ")
 
-            return CoordinateBean(1,12.1240,12.02133)
+            return CoordinateBean(0,12.1240,12.02133)
         }
     }
 
@@ -30,11 +28,12 @@ import org.springframework.web.bind.annotation.RestController
     //    //Permet d’envoyer les coordonnées de la position du client
     //    @PostMapping("/setCoordinate")
     //    fun receiveJson(
-    //        @RequestBody coordinate: CoordinateBean
-    //    ): CoordinateBean {
+    //        @RequestBody coordinate: com.pokemongo.pokemongo.Bean.CoordinateBean
+    //    ): com.pokemongo.pokemongo.Bean.CoordinateBean {
     //        println("/testSetCoordinate : Longitude= " + coordinate.long_coordinate)
     //        println("/testSetCoordinate : Latitude= " + coordinate.lat_coordinate)
     //        return coordinate
     //    }
+
 
 
