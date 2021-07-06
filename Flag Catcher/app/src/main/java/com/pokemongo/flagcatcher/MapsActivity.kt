@@ -6,25 +6,22 @@ import android.content.pm.PackageManager
 import android.location.Location
 import android.location.LocationManager
 import android.os.Bundle
-import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import android.widget.ProgressBar
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
-import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MarkerOptions
 import com.pokemongo.flagcatcher.databinding.ActivityMapsBinding
-import com.pokemongo.flagcatcher.model.beans.CoordinateBean
 import com.pokemongo.flagcatcher.model.utils.WSUtils
-import kotlin.concurrent.thread
 
 class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
 
@@ -45,42 +42,6 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
             .findFragmentById(R.id.map) as SupportMapFragment
         mapFragment.getMapAsync(this)
 
-        thread {
-            //Affichage simple d'un objet toulouse de type CoordinateBean de coordonnée 43,3512 - 1,2938
-            //Création de l'objet toulouse
-            val toulouse = CoordinateBean(1, 1.2938, 43.3512)
-            Log.w("MY TAG toulouse", "CREATION DE TOULOUSE")
-
-            //Transformation de Toulouse en objet LatLng
-            val toulouseLatLng = LatLng(toulouse.lat_coordinate, toulouse.long_coordinate)
-            Log.w("MY TAG toulouse", "CREATION DE TOULOUSE LATLANG")
-
-            //Modification de la partie graphique
-            runOnUiThread {
-                //On efface les point existant de la MAP
-                mMap.clear()
-                Log.w("MY TAG MAP", "Effacement des points")
-
-                //Centrage de la caméra sur les coordonnées de Toulouse avec zoom x5
-                mMap.animateCamera(
-                    CameraUpdateFactory.newLatLngZoom(toulouseLatLng, 5f)
-                )
-                Log.w("MY TAG MAP", "Mouvement CAMERA")
-
-                //Création et Affichage du Marker
-                var markerToulouse = MarkerOptions()
-                markerToulouse.position(
-                    LatLng(toulouse.lat_coordinate, toulouse.long_coordinate)
-                )
-                Log.w("MY TAG MAKER", "CREATION MARKER")
-                markerToulouse.icon(
-                    BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN)
-                )
-                Log.w("MY TAG MAKER", "ICON MARKER")
-                mMap.addMarker(markerToulouse)
-                Log.w("MY TAG MAKER", "AFFICHAGE MARKER")
-            }
-        }
 
         tv = findViewById(R.id.tv)
         progressBar = findViewById(R.id.progressBar)
@@ -93,8 +54,8 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
 
-            val intent=Intent(this, MainActivity::class.java)
-            startActivity(intent)
+        val intent=Intent(this, MainActivity::class.java)
+        startActivity(intent)
 
         return super.onOptionsItemSelected(item)
     }
@@ -123,6 +84,22 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
     /////////////////               Localisation                      //////////////////////
     ////////////////////////////////////////////////////////////////////////////////////////
 
+    //Click du bouton attribué avec l'attribut onClick dans le XML
+    fun onBtRefreshClick(view: View?) {
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
+            == PackageManager.PERMISSION_GRANTED
+        ) {
+            //On a la permission
+            afficherLocalisation()
+        } else {
+            //Etape 2 : On affiche la fenêtre de demande de permission
+            ActivityCompat.requestPermissions(
+                this,
+                arrayOf(Manifest.permission.ACCESS_FINE_LOCATION),
+                0
+            )
+        }
+    }
 
 
     //Callback de la demande de permission
@@ -142,6 +119,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         }
     }
 
+
     private fun afficherLocalisation() {
         val location = getLastKnownLocation()
         if (location != null) {
@@ -153,9 +131,9 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         Thread {
             try {
                 //Chercher la donnée
-                val coord: CoordinateBean = WSUtils.loadCoord()
+                val coordi: LatLng = WSUtils.getCoordinate()
                 //Mettre à jour l'IHM
-                showCoordinateBeanOnUIThread(coord)
+                showCoordinateBeanOnUIThread(coordi)
             } catch (e: Exception) {
                 //Affiche le detail de l'erreur dans la console
                 e.printStackTrace()
@@ -189,8 +167,8 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
     /* -------------------------------- */
 
 
-    fun showCoordinateBeanOnUIThread(coordBrean: CoordinateBean) {
-        runOnUiThread { tv?.setText(coordBrean.id_coordinate) }
+    fun showCoordinateBeanOnUIThread(coordBean: LatLng) {
+        runOnUiThread { tv?.text = "${coordBean.longitude} - ${coordBean.latitude}" }
     }
 
     fun showErrorOnUiThread(errorMessage: String?) {
