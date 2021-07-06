@@ -28,6 +28,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
     private lateinit var mMap: GoogleMap
     private lateinit var binding: ActivityMapsBinding
     private var tv: TextView? = null
+    private var tvError: TextView? = null
     private var progressBar: ProgressBar? = null
 
 
@@ -45,6 +46,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_maps)
         tv = findViewById(R.id.tv)
+        tvError = findViewById(R.id.tvError)
         progressBar = findViewById(R.id.progressBar)
     }
 
@@ -169,6 +171,17 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         }
     }
 
+    fun setError(String errorMessage) {
+        runOnUiThread(() -> {
+            tvError.setText(errorMessage)
+            if(errorMessage == null || errorMessage.trim().length() == 0) {
+                tvError.setVisibylity(View.GONE)
+            }
+            else {
+                tvError.setVisibility(View.GONE)
+            }
+        })
+    }
 
 
 }
