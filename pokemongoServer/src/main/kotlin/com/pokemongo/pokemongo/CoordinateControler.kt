@@ -36,3 +36,5 @@ import org.springframework.web.bind.annotation.RestController
     //        println("/testSetCoordinate : Latitude= " + coordinate.lat_coordinate)
     //        return coordinate
     //    }
+
+
