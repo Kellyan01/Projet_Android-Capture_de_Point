@@ -1,6 +1,7 @@
 package com.pokemongo.pokemongo
 
 import CoordinateBean
+import com.google.gson.Gson
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
