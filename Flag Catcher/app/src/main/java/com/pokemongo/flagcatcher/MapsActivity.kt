@@ -187,16 +187,16 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         }
     }
 
-    fun setError(String errorMessage) {
-        runOnUiThread(() -> {
-            tvError.setText(errorMessage)
+    fun setError(errorMessage : String?) {
+        runOnUiThread {
+            tvError?.setText(errorMessage)
             if(errorMessage == null || errorMessage.trim().length() == 0) {
-                tvError.setVisibylity(View.GONE)
+                tvError?.setVisibylity(View.GONE)
             }
             else {
-                tvError.setVisibility(View.GONE)
+                tvError?.setVisibility(View.GONE)
             }
-        })
+        }
     }
 
 
