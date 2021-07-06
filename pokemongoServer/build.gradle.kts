@@ -25,7 +25,8 @@ dependencies {
     runtimeOnly ("mysql:mysql-connector-java")
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     implementation ("org.springframework.boot:spring-boot-starter-data-jpa")
-
+    implementation ("com.google.code.gson:gson:2.8.6")
+    implementation ("com.squareup.okhttp3:okhttp:4.+")
 }
 
 tasks.withType<KotlinCompile> {
