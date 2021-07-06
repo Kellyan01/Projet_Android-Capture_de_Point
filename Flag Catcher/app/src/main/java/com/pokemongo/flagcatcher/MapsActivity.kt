@@ -13,6 +13,7 @@ import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MarkerOptions
 import com.pokemongo.flagcatcher.databinding.ActivityMapsBinding
 import android.content.Intent
+import com.pokemongo.flagcatcher.model.beans.CoordinateBean
 
 class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
 
@@ -29,8 +30,27 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         val mapFragment = supportFragmentManager
             .findFragmentById(R.id.map) as SupportMapFragment
         mapFragment.getMapAsync(this)
+
+
+        /*//Affichage simple d'un objet toulouse de type CoordinateBean de coordonnée 43,3512 - 1,2938
+        //Création de l'objet toulouse
+        val toulouse = CoordinateBean(1, 1.2938, 43.3512)
+
+        //Transformation de Toulouse en objet LatLng
+        val toulouseLatLng = LatLng(toulouse.lat_coordinate, toulouse.long_coordinate)
+*/
+        /*//Modification de la aprtie graphique
+        runOnUiThread {
+            //On efface les point existant de la MAP
+            mMap.clear()
+
+
+        }*/
     }
 
+    /////////////////////////////////////////////////////
+    //////////////         MENU         /////////////////
+    /////////////////////////////////////////////////////
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         menu?.add(0,0,0,"Accueil")
         return super.onCreateOptionsMenu(menu)
