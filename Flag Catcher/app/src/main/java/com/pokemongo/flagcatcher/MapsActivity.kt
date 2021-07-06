@@ -12,6 +12,7 @@ import android.view.View
 import android.widget.ProgressBar
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
@@ -20,7 +21,6 @@ import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MarkerOptions
 import com.pokemongo.flagcatcher.databinding.ActivityMapsBinding
-import com.pokemongo.flagcatcher.model.beans.CoordinateBean
 import com.pokemongo.flagcatcher.model.utils.WSUtils
 
 class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
@@ -43,8 +43,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
             .findFragmentById(R.id.map) as SupportMapFragment
         mapFragment.getMapAsync(this)
 
-        super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_maps)
+
         tv = findViewById(R.id.tv)
         tvError = findViewById(R.id.tvError)
         progressBar = findViewById(R.id.progressBar)
@@ -57,8 +56,8 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
 
-            val intent=Intent(this, MainActivity::class.java)
-            startActivity(intent)
+        val intent=Intent(this, MainActivity::class.java)
+        startActivity(intent)
 
         return super.onOptionsItemSelected(item)
     }
@@ -87,6 +86,22 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
     /////////////////               Localisation                      //////////////////////
     ////////////////////////////////////////////////////////////////////////////////////////
 
+    //Click du bouton attribué avec l'attribut onClick dans le XML
+    fun onBtRefreshClick(view: View?) {
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
+            == PackageManager.PERMISSION_GRANTED
+        ) {
+            //On a la permission
+            afficherLocalisation()
+        } else {
+            //Etape 2 : On affiche la fenêtre de demande de permission
+            ActivityCompat.requestPermissions(
+                this,
+                arrayOf(Manifest.permission.ACCESS_FINE_LOCATION),
+                0
+            )
+        }
+    }
 
 
     //Callback de la demande de permission
@@ -106,6 +121,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         }
     }
 
+
     private fun afficherLocalisation() {
         val location = getLastKnownLocation()
         if (location != null) {
@@ -117,9 +133,9 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         Thread {
             try {
                 //Chercher la donnée
-                val coord: CoordinateBean = WSUtils.loadCoord()
+                val coordi: LatLng = WSUtils.getCoordinate()
                 //Mettre à jour l'IHM
-                showCoordinateBeanOnUIThread(coord)
+                showCoordinateBeanOnUIThread(coordi)
             } catch (e: Exception) {
                 //Affiche le detail de l'erreur dans la console
                 e.printStackTrace()
@@ -153,8 +169,8 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
     /* -------------------------------- */
 
 
-    fun showCoordinateBeanOnUIThread(coordBrean: CoordinateBean) {
-        runOnUiThread { tv?.setText(coordBrean.id_coordinate) }
+    fun showCoordinateBeanOnUIThread(coordBean: LatLng) {
+        runOnUiThread { tv?.text = "${coordBean.longitude} - ${coordBean.latitude}" }
     }
 
     fun showErrorOnUiThread(errorMessage: String?) {
