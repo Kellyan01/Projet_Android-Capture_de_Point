@@ -6,6 +6,7 @@ import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.RequestBody.Companion.toRequestBody
+val MEDIA_TYPE_JSON = "application/json; charset=utf-8".toMediaType()
 
 object OkhttpUtils {
     val client = OkHttpClient()
@@ -27,7 +28,7 @@ object OkhttpUtils {
             response.body?.string() ?: ""
         }
 
-        val MEDIA_TYPE_JSON = "application/json; charset=utf-8".toMediaType()
+
     }
 
     fun sendPostOkHttpRequest(url: String, paramJson: String): String {
