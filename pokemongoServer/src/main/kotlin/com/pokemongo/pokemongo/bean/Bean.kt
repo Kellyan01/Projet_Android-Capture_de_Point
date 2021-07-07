@@ -17,13 +17,19 @@ data class CoordinateBean(
     constructor() : this(0, 0.0,0.0)
 }
 
+
+@Entity
+@Table(name = "users")
 data class UserBean(
+
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
-    var id_user: Int,
+    var id_coordinate: Int,
     var name_user: String,
     var password_user: String,
     var email_user: String) {
-    constructor() : this(0, "","","")
+
+    constructor() : this(0, "","", "")
+
 }
 
 data class ErrorBean(var message : String)
