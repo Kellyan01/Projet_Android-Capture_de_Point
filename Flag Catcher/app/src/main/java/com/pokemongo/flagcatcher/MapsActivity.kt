@@ -6,9 +6,14 @@ import android.content.pm.PackageManager
 import android.location.Location
 import android.location.LocationManager
 import android.os.Bundle
+
+import android.util.Log
+import android.view.LayoutInflater
+
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
+import android.widget.ImageView
 import android.widget.ProgressBar
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
@@ -19,16 +24,20 @@ import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.LatLng
+import com.google.android.gms.maps.model.Marker
 import com.google.android.gms.maps.model.MarkerOptions
 import com.pokemongo.flagcatcher.databinding.ActivityMapsBinding
 import com.pokemongo.flagcatcher.model.utils.WSUtils
 
-class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
+class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.InfoWindowAdapter,
+    GoogleMap.OnInfoWindowClickListener {
 
     private lateinit var mMap: GoogleMap
     private lateinit var binding: ActivityMapsBinding
     private var tv: TextView? = null
     private var progressBar: ProgressBar? = null
+    private lateinit var ivMark:ImageView
+    private lateinit var tvMark:TextView
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -41,10 +50,49 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         val mapFragment = supportFragmentManager
             .findFragmentById(R.id.map) as SupportMapFragment
         mapFragment.getMapAsync(this)
+        /*tv = findViewById(R.id.tv)
+        progressBar = findViewById(R.id.progressBar)*/
 
 
-        tv = findViewById(R.id.tv)
-        progressBar = findViewById(R.id.progressBar)
+        thread {
+            //Affichage simple d'un objet toulouse de type CoordinateBean de coordonnée 43,3512 - 1,2938
+            //Création de l'objet toulouse
+            val toulouse = CoordinateBean(1, 1.2938, 43.3512)
+            Log.w("MY TAG toulouse", "CREATION DE TOULOUSE")
+
+            //Transformation de Toulouse en objet LatLng
+            val toulouseLatLng = LatLng(toulouse.lat_coordinate, toulouse.long_coordinate)
+            Log.w("MY TAG toulouse", "CREATION DE TOULOUSE LATLANG")
+
+            //Modification de la partie graphique
+            runOnUiThread {
+                //On efface les point existant de la MAP
+                mMap.clear()
+                Log.w("MY TAG MAP", "Effacement des points")
+
+                //Centrage de la caméra sur les coordonnées de Toulouse avec zoom x5
+                mMap.animateCamera(
+                    CameraUpdateFactory.newLatLngZoom(toulouseLatLng, 5f)
+                )
+                Log.w("MY TAG MAP", "Mouvement CAMERA")
+
+                //Création et Affichage du Marker
+                var markerToulouse = MarkerOptions()
+                markerToulouse.position(
+                    LatLng(toulouse.lat_coordinate, toulouse.long_coordinate)
+                )
+                Log.w("MY TAG MAKER", "CREATION MARKER")
+                markerToulouse.icon(
+                    BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN)
+                )
+                Log.w("MY TAG MAKER", "ICON MARKER")
+                mMap.addMarker(markerToulouse).tag = toulouse
+                Log.w("MY TAG MAKER", "AFFICHAGE MARKER")
+            }
+        }
+
+
+
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
@@ -71,11 +119,10 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
      */
     override fun onMapReady(googleMap: GoogleMap) {
         mMap = googleMap
-
-        // Add a marker in Sydney and move the camera
-        val sydney = LatLng(-34.0, 151.0)
-        mMap.addMarker(MarkerOptions().position(sydney).title("Marker in Sydney"))
-        mMap.moveCamera(CameraUpdateFactory.newLatLng(sydney))
+        //On indique qu’on souhaite customiser
+        //les popups des markers
+        //Génère getInfoWindow et getInfoContents
+        mMap.setInfoWindowAdapter(this)
     }
 
 
@@ -131,7 +178,11 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         Thread {
             try {
                 //Chercher la donnée
-                val coordi: LatLng = WSUtils.getCoordinate()
+
+                //val coordi: LatLng = WSUtils.getCoordinate()
+
+                val coord = WSUtils.getCoordinate()
+
                 //Mettre à jour l'IHM
                 showCoordinateBeanOnUIThread(coordi)
             } catch (e: Exception) {
@@ -168,7 +219,13 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
 
 
     fun showCoordinateBeanOnUIThread(coordBean: LatLng) {
-        runOnUiThread { tv?.text = "${coordBean.longitude} - ${coordBean.latitude}" }
+
+        //runOnUiThread { tv?.text = "${coordBean.longitude} - ${coordBean.latitude}" }
+
+        runOnUiThread {
+            //tv?.setText(coordBrean.latitude  coordBrean.longitude)
+            tv?.text= coordBean.latitude.toString() +  " - " + coordBean.longitude.toString()
+        }
     }
 
     fun showErrorOnUiThread(errorMessage: String?) {
@@ -185,6 +242,30 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         }
     }
 
+    override fun getInfoWindow(p0: Marker?): View? {
+      return null
+    }
+
+    override fun getInfoContents(p0: Marker): View {
+        //Instancie le xml dans layout represantant l'infowindow
+        val view = LayoutInflater.from(this).inflate(R.layout.marker_coordinate, null)
+
+        var ivMark = view.findViewById<ImageView>(R.id.ivMark)
+        var tvMark = view.findViewById<TextView>(R.id.tvMark)
+        //Dans le marker on a associé la donnée dans l'attribut tag
+        //Obligé de la caster pour la retrouver car un tag est générique (type Any)
+        val maVille = p0.tag as CoordinateBean
+        tvMark.text = "Latitude : "+maVille.lat_coordinate.toString() + " - Longitude :"+maVille.long_coordinate.toString()
+        return view
+    }
+
+
+
+    override fun onInfoWindowClick(p0: Marker?) {
+        val ville: CoordinateBean? = p0?.tag as CoordinateBean?
+        //Ferme la fenêtre
+        p0?.hideInfoWindow()
+    }
 
 
 }
