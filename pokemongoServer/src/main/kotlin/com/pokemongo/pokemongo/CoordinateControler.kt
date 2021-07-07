@@ -42,6 +42,8 @@ class MyRestController(private val coordinateDAO: CoordinateDAO, private val use
     fun setCoordinate(@RequestBody coordinate: CoordinateBean, response: HttpServletResponse) {
         println("/setCoordinate ")
         try {
+            //TODO controle data
+
             coordinateDAO.save(coordinate)
         } catch (e: Exception) {
             e.printStackTrace()
@@ -80,15 +82,6 @@ class MyRestController(private val coordinateDAO: CoordinateDAO, private val use
     //@GetMapping("/getCoordinate")
     //fun find():  { }
 
-    //Gestion des profils(GET)//
-
-    //http://localhost:8080/profil
-    //Permet d'accéder à son profil depuis le client
-    @GetMapping("/profil")
-    fun profil(@RequestBody users: UsersBean) {
-        val list = usersDAO.findAll()
-        return
-    }
 }
 
 
