@@ -6,13 +6,18 @@ import android.content.pm.PackageManager
 import android.location.Location
 import android.location.LocationManager
 import android.os.Bundle
+
 import android.util.Log
+import android.view.LayoutInflater
+
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
+import android.widget.ImageView
 import android.widget.ProgressBar
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
@@ -20,18 +25,23 @@ import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.google.android.gms.maps.model.LatLng
+import com.google.android.gms.maps.model.Marker
 import com.google.android.gms.maps.model.MarkerOptions
 import com.pokemongo.flagcatcher.databinding.ActivityMapsBinding
 import com.pokemongo.flagcatcher.model.beans.CoordinateBean
 import com.pokemongo.flagcatcher.model.utils.WSUtils
 import kotlin.concurrent.thread
 
-class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
+class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.InfoWindowAdapter,
+    GoogleMap.OnInfoWindowClickListener {
 
     private lateinit var mMap: GoogleMap
     private lateinit var binding: ActivityMapsBinding
     private var tv: TextView? = null
+    private var tvError: TextView? = null
     private var progressBar: ProgressBar? = null
+    private lateinit var ivMark: ImageView
+    private lateinit var tvMark: TextView
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -44,6 +54,9 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         val mapFragment = supportFragmentManager
             .findFragmentById(R.id.map) as SupportMapFragment
         mapFragment.getMapAsync(this)
+        /*tv = findViewById(R.id.tv)
+        progressBar = findViewById(R.id.progressBar)*/
+
 
         thread {
             //Affichage simple d'un objet toulouse de type CoordinateBean de coordonnée 43,3512 - 1,2938
@@ -77,24 +90,24 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
                     BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN)
                 )
                 Log.w("MY TAG MAKER", "ICON MARKER")
-                mMap.addMarker(markerToulouse)
+                mMap.addMarker(markerToulouse).tag = toulouse
                 Log.w("MY TAG MAKER", "AFFICHAGE MARKER")
             }
         }
-
         tv = findViewById(R.id.tv)
+        tvError = findViewById(R.id.tvError)
         progressBar = findViewById(R.id.progressBar)
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
-        menu?.add(0,0,0,"Accueil")
+        menu?.add(0, 0, 0, "Accueil")
         return super.onCreateOptionsMenu(menu)
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
 
-            val intent=Intent(this, MainActivity::class.java)
-            startActivity(intent)
+        val intent = Intent(this, MainActivity::class.java)
+        startActivity(intent)
 
         return super.onOptionsItemSelected(item)
     }
@@ -110,19 +123,33 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
      */
     override fun onMapReady(googleMap: GoogleMap) {
         mMap = googleMap
-
-        // Add a marker in Sydney and move the camera
-        val sydney = LatLng(-34.0, 151.0)
-        mMap.addMarker(MarkerOptions().position(sydney).title("Marker in Sydney"))
-        mMap.moveCamera(CameraUpdateFactory.newLatLng(sydney))
+        //On indique qu’on souhaite customiser
+        //les popups des markers
+        //Génère getInfoWindow et getInfoContents
+        mMap.setInfoWindowAdapter(this)
     }
-
 
 
     ////////////////////////////////////////////////////////////////////////////////////////
     /////////////////               Localisation                      //////////////////////
     ////////////////////////////////////////////////////////////////////////////////////////
 
+    //Click du bouton attribué avec l'attribut onClick dans le XML
+    fun onBtRefreshClick(view: View?) {
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
+            == PackageManager.PERMISSION_GRANTED
+        ) {
+            //On a la permission
+            afficherLocalisation()
+        } else {
+            //Etape 2 : On affiche la fenêtre de demande de permission
+            ActivityCompat.requestPermissions(
+                this,
+                arrayOf(Manifest.permission.ACCESS_FINE_LOCATION),
+                0
+            )
+        }
+    }
 
 
     //Callback de la demande de permission
@@ -142,24 +169,30 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         }
     }
 
+
     private fun afficherLocalisation() {
         val location = getLastKnownLocation()
         if (location != null) {
             tv!!.text = location.latitude.toString() + " " + location.longitude
         } else {
-            tv!!.text = "La localisation est nulle"
+            tv?.setText("Impossible de trouver la localisation")
         }
         showProgressBar(true)
+        setError(null)
         Thread {
             try {
                 //Chercher la donnée
-                val coord: CoordinateBean = WSUtils.loadCoord()
+
+                val coordi: LatLng = WSUtils.getCoordinate()
+
+                //val coord = WSUtils.getCoordinate()
+
                 //Mettre à jour l'IHM
-                showCoordinateBeanOnUIThread(coord)
+                showCoordinateBeanOnUIThread(coordi)
             } catch (e: Exception) {
                 //Affiche le detail de l'erreur dans la console
                 e.printStackTrace()
-                showErrorOnUiThread(e.message)
+                setError("Error = " + e.message)
             }
             showProgressBar(false)
         }.start()
@@ -189,12 +222,18 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
     /* -------------------------------- */
 
 
-    fun showCoordinateBeanOnUIThread(coordBrean: CoordinateBean) {
-        runOnUiThread { tv?.setText(coordBrean.id_coordinate) }
+    fun showCoordinateBeanOnUIThread(coordBean: LatLng) {
+
+        //runOnUiThread { tv?.text = "${coordBean.longitude} - ${coordBean.latitude}" }
+
+        runOnUiThread {
+            //tv?.setText(coordBrean.latitude  coordBrean.longitude)
+            tv?.text = coordBean.latitude.toString() + " - " + coordBean.longitude.toString()
+        }
     }
 
     fun showErrorOnUiThread(errorMessage: String?) {
-        runOnUiThread { tv!!.text = "Erreur : $errorMessage" }
+        runOnUiThread { setError("Une erreur est apparu veuillez réessayer") }
     }
 
     fun showProgressBar(show: Boolean) {
@@ -207,6 +246,40 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         }
     }
 
+    fun setError(errorMessage: String?) {
+        runOnUiThread {
+            tvError?.setText(errorMessage)
+            if (errorMessage == null || errorMessage.trim().length == 0) {
+                tvError?.setVisibility(View.GONE)
+            } else {
+                tvError?.setVisibility(View.GONE)
+            }
+        }
+    }
+
+        override fun getInfoWindow(p0: Marker?): View? {
+            return null
+        }
+
+        override fun getInfoContents(p0: Marker): View {
+            //Instancie le xml dans layout represantant l'infowindow
+            val view = LayoutInflater.from(this).inflate(R.layout.marker_coordinate, null)
+
+            var ivMark = view.findViewById<ImageView>(R.id.ivMark)
+            var tvMark = view.findViewById<TextView>(R.id.tvMark)
+            //Dans le marker on a associé la donnée dans l'attribut tag
+            //Obligé de la caster pour la retrouver car un tag est générique (type Any)
+            val maVille = p0.tag as CoordinateBean
+            tvMark.text =
+                "Latitude : " + maVille.lat_coordinate.toString() + " - Longitude :" + maVille.long_coordinate.toString()
+            return view
+        }
 
 
-}
+        override fun onInfoWindowClick(p0: Marker?) {
+            val ville: CoordinateBean? = p0?.tag as CoordinateBean?
+            //Ferme la fenêtre
+            p0?.hideInfoWindow()
+
+        }
+    }
