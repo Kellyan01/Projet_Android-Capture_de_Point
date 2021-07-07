@@ -32,7 +32,6 @@ class MyRestController(private val coordinateDAO: CoordinateDAO) {
         }
     }
 
-<<<<<<< HEAD
 
     //http://localhost:8080/setCoordinate
     //Permet de creer les positions du flag et de les inscrire dans la DB
@@ -44,18 +43,6 @@ class MyRestController(private val coordinateDAO: CoordinateDAO) {
         } catch (e: Exception) {
             e.printStackTrace()
             response.status = 518
-=======
-        //http://localhost:8080/getCoordinate
-        //Permet de recuperer les coordonées du flag
-        @GetMapping("/getCoordinate")
-        fun getCoordinate(): ArrayList<CoordinateBean> {
-            println("/getCoordinate")
-            val coordinateList = ArrayList<CoordinateBean>()
-            coordinateList.add(CoordinateBean(1,12.1240,12.021331))
-            coordinateList.add(CoordinateBean(2,12.1240,12.021331))
-            coordinateList.add(CoordinateBean(3,12.1240,12.021331))
-            return coordinateList
->>>>>>> Remi
         }
 
     }
