@@ -1,6 +1,7 @@
 package com.pokemongo.pokemongo
 
 import com.pokemongo.pokemongo.bean.CoordinateBean
+import com.pokemongo.pokemongo.bean.ErrorBean
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
@@ -28,7 +29,8 @@ class MyRestController(private val coordinateDAO: CoordinateDAO) {
         } catch (e: Exception) {
             e.printStackTrace()
             response.status = 518
-            return null
+            var error = ErrorBean("Error 518")
+            return error
         }
     }
 
@@ -36,13 +38,16 @@ class MyRestController(private val coordinateDAO: CoordinateDAO) {
     //http://localhost:8080/setCoordinate
     //Permet de creer les positions du flag et de les inscrire dans la DB
     @PostMapping("/setCoordinate")
-    fun setCoordinate(coordinate: CoordinateBean,response: HttpServletResponse) {
+    fun setCoordinate(coordinate: CoordinateBean,response: HttpServletResponse): Any? {
         println("/setCoordinate ")
         try {
             coordinateDAO.save(coordinate)
+            return null
         } catch (e: Exception) {
             e.printStackTrace()
             response.status = 518
+            var error = ErrorBean("Error 518")
+            return error
         }
 
     }
