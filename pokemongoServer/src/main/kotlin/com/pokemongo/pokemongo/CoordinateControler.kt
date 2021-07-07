@@ -1,6 +1,7 @@
 package com.pokemongo.pokemongo
 
 import com.pokemongo.pokemongo.bean.CoordinateBean
+import com.pokemongo.pokemongo.bean.UserBean
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
@@ -20,6 +21,7 @@ class MyRestController(private val coordinateDAO: CoordinateDAO) {
 
     //http://localhost:8080/getCoordinate
     //Permet de recuperer les coordonées du flag
+    //JSON : { "id_coordinate" : 1, "long_coordinate" : " ", "lat_coordinate": " ” }
     @GetMapping("/getCoordinate")
     fun getCoordinate(response: HttpServletResponse): Any? {
         println("/getCoordinate ")
@@ -46,47 +48,22 @@ class MyRestController(private val coordinateDAO: CoordinateDAO) {
         }
 
     }
+
+
+
+
+        //Enregistrement des joueurs(POST)/
+        //http://localhost:8080/register
+        //JSON : { "id_user" : 1, "name" : "toto", "password": "motdepasse”, "mail": "mon@mail.com” }
+        @PostMapping("/register")
+        fun register(@RequestBody user: UserBean) {
+            println("/login name= "+user.name_user+", password= "+user.password_user+", mail= "+user.email_user)
+        }
 }
+
+
 
 /*
-@RestController
-    class CoordinateDAO(private var coordinateDAO: CoordinateDAO) {
-
-        var INCORRECT_VALUE = 203
-        var ADD_USER = 201
-
-    @GetMapping("/catchDB")
-    fun find(name: String?, response: HttpServletResponse): List<CoordinateBean>? {
-        println("/find name=$name")
-
-        if (name.isNullOrBlank()) {
-            response.status = INCORRECT_VALUE
-            return null
-        }
-        val coordinateList = coordinateDAO.findById_coordinate(name)
-
-        if (coordinateList.isEmpty()) {
-            response.status = ADD_USER
-            return null
-        }
-
-        return coordinateList.map { CoordinateBean(it!!.id_coordinate, it.long_coordinate, it.lat_coordinate) }
-    }
-}
-
-
-
-        //Enregistrement des joueurs(POST)//
-
-        //http://localhost:8080/register
-        //Permet d'accéder au formulaire d’enregistrement, ces données seront ensuite envoyées vers le serveur afin d’enregistrer l’utilisateur dans la DB.
-        //JSON : { "id_user" : 1, "name" : "toto", "password": "motdepasse”, "mail": "mon@mail.com” }
-        //@PostMapping("/register")
-        //fun register(@RequestBody user: UserBean) {
-            //println("/login name=$name, password=$password, mail=$mail")
-
-            //}
-        //}
 
         //Gestion de connexion(POST)//
 
