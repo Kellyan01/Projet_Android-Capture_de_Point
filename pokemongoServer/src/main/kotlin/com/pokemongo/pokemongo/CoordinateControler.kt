@@ -1,7 +1,8 @@
 package com.pokemongo.pokemongo
 
+import UsersDAO
 import com.pokemongo.pokemongo.bean.CoordinateBean
-import com.pokemongo.pokemongo.bean.UserBean
+import com.pokemongo.pokemongo.bean.UsersBean
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
@@ -10,7 +11,7 @@ import javax.servlet.http.HttpServletResponse
 
 
 @RestController
-class MyRestController(private val coordinateDAO: CoordinateDAO) {
+class MyRestController(private val coordinateDAO: CoordinateDAO, private val usersDAO: UsersDAO) {
 
     //http://localhost:8080/test
     @GetMapping("/test")
@@ -25,7 +26,7 @@ class MyRestController(private val coordinateDAO: CoordinateDAO) {
     @GetMapping("/getCoordinate")
     fun getCoordinate(response: HttpServletResponse): Any? {
         println("/getCoordinate ")
-         try {
+        try {
             return coordinateDAO.findAll()
         } catch (e: Exception) {
             e.printStackTrace()
@@ -38,7 +39,7 @@ class MyRestController(private val coordinateDAO: CoordinateDAO) {
     //http://localhost:8080/setCoordinate
     //Permet de creer les positions du flag et de les inscrire dans la DB
     @PostMapping("/setCoordinate")
-    fun setCoordinate(coordinate: CoordinateBean,response: HttpServletResponse) {
+    fun setCoordinate(coordinate: CoordinateBean, response: HttpServletResponse) {
         println("/setCoordinate ")
         try {
             coordinateDAO.save(coordinate)
@@ -50,16 +51,16 @@ class MyRestController(private val coordinateDAO: CoordinateDAO) {
     }
 
 
-
-
-        //Enregistrement des joueurs(POST)/
-        //http://localhost:8080/register
-        //JSON : { "id_user" : 1, "name" : "toto", "password": "motdepasse”, "mail": "mon@mail.com” }
-        @PostMapping("/register")
-        fun register(@RequestBody user: UserBean) {
-            println("/login name= "+user.name_user+", password= "+user.password_user+", mail= "+user.email_user)
-        }
+    //Enregistrement des joueurs(POST)/
+    //http://localhost:8080/register
+    //JSON : { "id_user" : 1, "name" : "toto", "password": "motdepasse”, "mail": "mon@mail.com” }
+    @PostMapping("/register")
+    fun register(user: UsersBean) {
+        println("/login name= " + user.name_user + ", password= " + user.password_user + ", mail= " + user.email_user)
+        usersDAO.save(user)
+    }
 }
+
 
 
 
