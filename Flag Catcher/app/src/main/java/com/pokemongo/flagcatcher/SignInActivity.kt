@@ -4,8 +4,10 @@ import android.content.Intent
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
+import android.view.View
 import android.widget.Button
 import android.widget.EditText
+import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 
 class SignInActivity : AppCompatActivity() {
@@ -13,6 +15,7 @@ class SignInActivity : AppCompatActivity() {
     private var etName: EditText? = null
     private var etPassword: EditText? = null
     private var etEmail: EditText? = null
+    private var test: TextView? = null
     private var signIn: Button? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -22,6 +25,7 @@ class SignInActivity : AppCompatActivity() {
         etName = findViewById(R.id.etName)
         etPassword = findViewById(R.id.etPassword)
         etEmail = findViewById(R.id.etEmail)
+        test = findViewById(R.id.test)
         signIn = findViewById(R.id.signIn)
     }
 
@@ -42,4 +46,7 @@ class SignInActivity : AppCompatActivity() {
         }
         return super.onOptionsItemSelected(item)
     }
+
+    fun onSignInClick(view: View) {}
+
 }

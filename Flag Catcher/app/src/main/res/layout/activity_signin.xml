@@ -45,9 +45,16 @@
         android:inputType="textEmailAddress"
         android:text="Email...."/>
 
+    <TextView
+        android:id="@+id/test"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="" />
+
     <Button
         android:id="@+id/signIn"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:onClick="onSignInClick"
         android:text="S'Inscrire" />
 </LinearLayout>
