@@ -3,6 +3,7 @@ package com.pokemongo.flagcatcher.model.utils
 
 import android.util.Log
 import com.google.gson.Gson
+import com.pokemongo.flagcatcher.model.beans.ErrorBean
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
 import okhttp3.Request
@@ -12,7 +13,7 @@ val MEDIA_TYPE_JSON = "application/json; charset=utf-8".toMediaType()
 object OkhttpUtils {
     val client = OkHttpClient()
 
-    fun sendGetOkHttpRequest(url: String): String {
+    fun sendGetOkHttpRequest(url: String) {
         println("url : $url")
 
         //Création de la requete
@@ -24,7 +25,7 @@ object OkhttpUtils {
         //Analyse du code retour
         return
             if(response.code == 518) {
-                val error =  Gson().fromJson(response.body?.string(), ErrorBean:class.java)
+                val error =  Gson().fromJson(response.body?.string(), ErrorBean::class.java)
                 throw Exception(error.message)
             }
             else if (response.code !in 200..299) {
