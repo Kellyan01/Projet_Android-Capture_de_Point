@@ -57,10 +57,15 @@ class MyRestController(private val coordinateDAO: CoordinateDAO, private val use
     //http://localhost:8080/register
     //JSON : { "id_user" : 1, "name" : "toto", "password": "motdepasse", "mail": "mon@mail.com" }
     @PostMapping("/register")
-    fun register(@RequestBody users: UsersBean) {
+    fun register(@RequestBody users: UsersBean, response: HttpServletResponse) {
         println("/register")
         println("/login name = " + users.name_users + ", password = " + users.password_users + ", mail = " + users.email_users)
+        try {
         usersDAO.save(users)
+        } catch (e: Exception) {
+            e.printStackTrace()
+            response.status = 518
+        }
     }
 
 
@@ -75,12 +80,6 @@ class MyRestController(private val coordinateDAO: CoordinateDAO, private val use
     //}
 
 
-    //Récupération de la liste de points générés(GET)//
-
-    //http://localhost:8080/getCoordinate
-    //Permet de récupérer les points générés par le serveur
-    //@GetMapping("/getCoordinate")
-    //fun find():  { }
 
 }
 
