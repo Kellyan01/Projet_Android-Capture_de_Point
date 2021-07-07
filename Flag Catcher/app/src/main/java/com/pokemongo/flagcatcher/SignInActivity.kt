@@ -47,6 +47,7 @@ class SignInActivity : AppCompatActivity() {
         return super.onOptionsItemSelected(item)
     }
 
-    fun onSignInClick(view: View) {}
-
+    fun onSignInClick(view: View) {
+        test?.setText("Nom = " + etName?.text + " Password = " + etPassword?.text + " Email = " + etEmail?.text)
+    }
 }

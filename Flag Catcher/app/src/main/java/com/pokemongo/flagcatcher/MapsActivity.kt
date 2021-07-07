@@ -57,6 +57,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.InfoWind
 
 
 
+
         thread {
             //Affichage simple d'un objet toulouse de type CoordinateBean de coordonnée 43,3512 - 1,2938
             //Création de l'objet toulouse
@@ -155,6 +156,11 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.InfoWind
         //les popups des markers
         //Génère getInfoWindow et getInfoContents
         mMap.setInfoWindowAdapter(this)
+
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
+            == PackageManager.PERMISSION_GRANTED        ) {
+            mMap.isMyLocationEnabled = true
+        }
     }
 
 
@@ -168,7 +174,12 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.InfoWind
             == PackageManager.PERMISSION_GRANTED
         ) {
             //On a la permission
-            afficherLocalisation()
+            //afficherLocalisation();
+            mMap.isMyLocationEnabled
+
+            //TODO Gérer l'affichage des coordonnées dans le TxtView
+
+            //tv!!.text = mMap.latitude + " " + mMap.longitude
         } else {
             //Etape 2 : On affiche la fenêtre de demande de permission
             ActivityCompat.requestPermissions(
@@ -190,15 +201,16 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.InfoWind
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
             == PackageManager.PERMISSION_GRANTED
         ) {
-            //On a la permission
-            afficherLocalisation()
+            //afficherLocalisation()
+            mMap.isMyLocationEnabled
         } else {
             tv?.setText("Il faut la permission")
         }
     }
 
+        //OBSOLETE REMPLACE PAR mMap.isMyLocationEnabled = true DANS OnMapReady//
 
-    private fun afficherLocalisation() {
+    /* private fun afficherLocalisation() {
         val location = getLastKnownLocation()
         if (location != null) {
 
@@ -254,7 +266,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.InfoWind
             }
         }
         return bestLocation
-    }
+    }*/
 
     /* -------------------------------- */
     // Mettre à jour l'IHM
