@@ -27,7 +27,6 @@ data class UsersBean(
     var email_users: String) {
 
     constructor() : this(0, "","", "")
-
 }
 
 data class ErrorBean(var message : String)

@@ -21,7 +21,7 @@ class MyRestController(private val coordinateDAO: CoordinateDAO, private val use
 
     //http://localhost:8080/getCoordinate
     //Permet de recuperer les coordonées du flag
-    //JSON : { "id_coordinate" : 1, "long_coordinate" : " ", "lat_coordinate": " ” }
+    //JSON recu: { "id_coordinate" : 1, "long_coordinate" : " ", "lat_coordinate": " " }
     @GetMapping("/getCoordinate")
     fun getCoordinate(response: HttpServletResponse): Any? {
         println("/getCoordinate ")
@@ -36,8 +36,10 @@ class MyRestController(private val coordinateDAO: CoordinateDAO, private val use
 
     //http://localhost:8080/setCoordinate
     //Permet de creer les positions du flag et de les inscrire dans la DB
+    //JSON envoyé : //JSON : { "id_coordinate" : 1, "long_coordinate" : " ", "lat_coordinate": " " }
+    // le champ id_coordinate n'est pas necessaire, renvoie une erreur sur long ou lat sont null
     @PostMapping("/setCoordinate")
-    fun setCoordinate(coordinate: CoordinateBean, response: HttpServletResponse) {
+    fun setCoordinate(@RequestBody coordinate: CoordinateBean, response: HttpServletResponse) {
         println("/setCoordinate ")
         try {
             coordinateDAO.save(coordinate)
@@ -51,41 +53,47 @@ class MyRestController(private val coordinateDAO: CoordinateDAO, private val use
 
     //Enregistrement des joueurs(POST)/
     //http://localhost:8080/register
-    //JSON : { "id_user" : 1, "name" : "toto", "password": "motdepasse”, "mail": "mon@mail.com” }
+    //JSON : { "id_user" : 1, "name" : "toto", "password": "motdepasse", "mail": "mon@mail.com" }
     @PostMapping("/register")
     fun register(@RequestBody users: UsersBean) {
+        println("/register")
         println("/login name = " + users.name_users + ", password = " + users.password_users + ", mail = " + users.email_users)
         usersDAO.save(users)
+    }
+
+
+    //Gestion de connexion(POST)//
+
+    //http://localhost:8080/login
+    //Permet à l'utilisateur de se connecter côté client, après vérification du serveur auprès de la DB.
+    //JSON : { "id_user" : 12, "name" : "toto", "password": "motdepasse” }
+    //@PostMapping("/login")
+    //fun login(@RequestBody user: UsersBean) {
+
+    //}
+
+
+    //Récupération de la liste de points générés(GET)//
+
+    //http://localhost:8080/getCoordinate
+    //Permet de récupérer les points générés par le serveur
+    //@GetMapping("/getCoordinate")
+    //fun find():  { }
+
+    //Gestion des profils(GET)//
+
+    //http://localhost:8080/profil
+    //Permet d'accéder à son profil depuis le client
+    @GetMapping("/profil")
+    fun profil(@RequestBody users: UsersBean): String {
+        return users.name_users + users.email_users
     }
 }
 
 
-/*
-        //Gestion de connexion(POST)//
 
-        //http://localhost:8080/login
-        //Permet à l'utilisateur de se connecter côté client, après vérification du serveur auprès de la DB.
-        //JSON : { "id_user" : 12, "name" : "toto", "password": "motdepasse” }
-        //@PostMapping("/login")
-        //fun login(@RequestBody) {        }
 
-        //Récupération de la liste de points générés(GET)//
 
-        //http://localhost:8080/getCoordinate
-        //Permet de récupérer les points générés par le serveur
-        //@GetMapping("/getCoordinate")
-        //fun find():  { }
-
-        //Gestion des profils(GET)//
-
-        //http://localhost:8080/profil
-        //Permet d'accéder à son profil depuis le client
-        @GetMapping("/profil")
-        fun profil(){ }
-
-    }
-
- */
 
 
 
