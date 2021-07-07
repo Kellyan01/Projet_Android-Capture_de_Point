@@ -23,11 +23,14 @@ import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
+import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.Marker
 import com.google.android.gms.maps.model.MarkerOptions
 import com.pokemongo.flagcatcher.databinding.ActivityMapsBinding
+import com.pokemongo.flagcatcher.model.beans.CoordinateBean
 import com.pokemongo.flagcatcher.model.utils.WSUtils
+import kotlin.concurrent.thread
 
 class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.InfoWindowAdapter,
     GoogleMap.OnInfoWindowClickListener {
@@ -179,9 +182,9 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.InfoWind
             try {
                 //Chercher la donnée
 
-                //val coordi: LatLng = WSUtils.getCoordinate()
+                val coordi: LatLng = WSUtils.getCoordinate()
 
-                val coord = WSUtils.getCoordinate()
+                //val coord = WSUtils.getCoordinate()
 
                 //Mettre à jour l'IHM
                 showCoordinateBeanOnUIThread(coordi)
