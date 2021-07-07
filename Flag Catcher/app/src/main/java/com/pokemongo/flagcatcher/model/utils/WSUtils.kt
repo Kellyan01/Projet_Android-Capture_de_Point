@@ -25,7 +25,7 @@ class WSUtils {
             // https://medium.com/@hissain.khan/parsing-with-google-gson-library-in-android-kotlin-7920e26f5520#43aa
             val point = object : TypeToken<ArrayList<CoordinateBean>>() { }.type
 
-            val pointList = GSON.fromJson<ArrayList<CoordinateBean>>(request, point)
+            val pointList = GSON.fromJson<ArrayList<CoordinateBean>>(request.toString(), point)
 
             pointList.forEach{it: CoordinateBean -> Log.w("MY TAG JSON", "JSON = $it")}
 
@@ -39,7 +39,7 @@ class WSUtils {
             val request = OkhttpUtils.sendGetOkHttpRequest(url)
             //var response: String = "OK ca REPOND"
             println(request)
-            return request
+            return request.toString()
             throw Exception("T'as Merdé Mec !!!")
         }
 
