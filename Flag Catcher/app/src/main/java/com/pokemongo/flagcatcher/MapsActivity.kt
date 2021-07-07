@@ -127,9 +127,10 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         if (location != null) {
             tv!!.text = location.latitude.toString() + " " + location.longitude
         } else {
-            tv!!.text = "La localisation est nulle"
+            tv?.setText("Impossible de trouver la localisation")
         }
         showProgressBar(true)
+        setError(null)
         Thread {
             try {
                 //Chercher la donnée
@@ -139,7 +140,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
             } catch (e: Exception) {
                 //Affiche le detail de l'erreur dans la console
                 e.printStackTrace()
-                showErrorOnUiThread(e.message)
+                setError("Error = " + e.message)
             }
             showProgressBar(false)
         }.start()
@@ -174,7 +175,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
     }
 
     fun showErrorOnUiThread(errorMessage: String?) {
-        runOnUiThread { tv!!.text = "Erreur : $errorMessage" }
+        runOnUiThread { setError("Une erreur est apparu veuillez réessayer") }
     }
 
     fun showProgressBar(show: Boolean) {
@@ -190,8 +191,8 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
     fun setError(errorMessage : String?) {
         runOnUiThread {
             tvError?.setText(errorMessage)
-            if(errorMessage == null || errorMessage.trim().length() == 0) {
-                tvError?.setVisibylity(View.GONE)
+            if(errorMessage == null || errorMessage.trim().length== 0) {
+                tvError?.setVisibility(View.GONE)
             }
             else {
                 tvError?.setVisibility(View.GONE)
