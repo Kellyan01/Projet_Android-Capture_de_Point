@@ -40,8 +40,8 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.InfoWind
     private var tv: TextView? = null
     private var tvError: TextView? = null
     private var progressBar: ProgressBar? = null
-    private lateinit var ivMark:ImageView
-    private lateinit var tvMark:TextView
+    private lateinit var ivMark: ImageView
+    private lateinit var tvMark: TextView
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -100,13 +100,13 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.InfoWind
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
-        menu?.add(0,0,0,"Accueil")
+        menu?.add(0, 0, 0, "Accueil")
         return super.onCreateOptionsMenu(menu)
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
 
-        val intent=Intent(this, MainActivity::class.java)
+        val intent = Intent(this, MainActivity::class.java)
         startActivity(intent)
 
         return super.onOptionsItemSelected(item)
@@ -128,7 +128,6 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.InfoWind
         //Génère getInfoWindow et getInfoContents
         mMap.setInfoWindowAdapter(this)
     }
-
 
 
     ////////////////////////////////////////////////////////////////////////////////////////
@@ -229,7 +228,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.InfoWind
 
         runOnUiThread {
             //tv?.setText(coordBrean.latitude  coordBrean.longitude)
-            tv?.text= coordBean.latitude.toString() +  " - " + coordBean.longitude.toString()
+            tv?.text = coordBean.latitude.toString() + " - " + coordBean.longitude.toString()
         }
     }
 
@@ -247,42 +246,40 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.InfoWind
         }
     }
 
-    fun setError(errorMessage : String?) {
+    fun setError(errorMessage: String?) {
         runOnUiThread {
             tvError?.setText(errorMessage)
-            if(errorMessage == null || errorMessage.trim().length== 0) {
+            if (errorMessage == null || errorMessage.trim().length == 0) {
                 tvError?.setVisibility(View.GONE)
-            }
-            else {
+            } else {
                 tvError?.setVisibility(View.GONE)
             }
         }
-
-    override fun getInfoWindow(p0: Marker?): View? {
-      return null
     }
 
-    override fun getInfoContents(p0: Marker): View {
-        //Instancie le xml dans layout represantant l'infowindow
-        val view = LayoutInflater.from(this).inflate(R.layout.marker_coordinate, null)
+        override fun getInfoWindow(p0: Marker?): View? {
+            return null
+        }
 
-        var ivMark = view.findViewById<ImageView>(R.id.ivMark)
-        var tvMark = view.findViewById<TextView>(R.id.tvMark)
-        //Dans le marker on a associé la donnée dans l'attribut tag
-        //Obligé de la caster pour la retrouver car un tag est générique (type Any)
-        val maVille = p0.tag as CoordinateBean
-        tvMark.text = "Latitude : "+maVille.lat_coordinate.toString() + " - Longitude :"+maVille.long_coordinate.toString()
-        return view
+        override fun getInfoContents(p0: Marker): View {
+            //Instancie le xml dans layout represantant l'infowindow
+            val view = LayoutInflater.from(this).inflate(R.layout.marker_coordinate, null)
+
+            var ivMark = view.findViewById<ImageView>(R.id.ivMark)
+            var tvMark = view.findViewById<TextView>(R.id.tvMark)
+            //Dans le marker on a associé la donnée dans l'attribut tag
+            //Obligé de la caster pour la retrouver car un tag est générique (type Any)
+            val maVille = p0.tag as CoordinateBean
+            tvMark.text =
+                "Latitude : " + maVille.lat_coordinate.toString() + " - Longitude :" + maVille.long_coordinate.toString()
+            return view
+        }
+
+
+        override fun onInfoWindowClick(p0: Marker?) {
+            val ville: CoordinateBean? = p0?.tag as CoordinateBean?
+            //Ferme la fenêtre
+            p0?.hideInfoWindow()
+
+        }
     }
-
-
-
-    override fun onInfoWindowClick(p0: Marker?) {
-        val ville: CoordinateBean? = p0?.tag as CoordinateBean?
-        //Ferme la fenêtre
-        p0?.hideInfoWindow()
-
-    }
-
-
-}
