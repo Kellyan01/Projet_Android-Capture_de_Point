@@ -19,13 +19,17 @@ class WSUtils {
         fun getCoordinate(): ArrayList<CoordinateBean> {
 
             val url = "$SERVER/getCoordinate"
+            Log.w("MY TAG GetCoordinate", "URL")
 
             val request = OkhttpUtils.sendGetOkHttpRequest(url)
+            Log.w("MY TAG GetCoordinate", "REQUEST")
 
             // https://medium.com/@hissain.khan/parsing-with-google-gson-library-in-android-kotlin-7920e26f5520#43aa
             val point = object : TypeToken<ArrayList<CoordinateBean>>() { }.type
+            Log.w("MY TAG GetCoordinate", "POINT")
 
             val pointList = GSON.fromJson<ArrayList<CoordinateBean>>(request.toString(), point)
+            Log.w("MY TAG GetCoordinate", "POINTLIST JSON")
 
             pointList.forEach{it: CoordinateBean -> Log.w("MY TAG JSON", "JSON = $it")}
 
