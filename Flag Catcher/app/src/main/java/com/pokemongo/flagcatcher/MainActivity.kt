@@ -14,6 +14,7 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         menu?.add(0,1,0,"Map")
+        menu?.add(0,2,0,"Inscription")
         return super.onCreateOptionsMenu(menu)
     }
 
@@ -21,6 +22,10 @@ class MainActivity : AppCompatActivity() {
         if(item.itemId ==1){
                 val intent=Intent(this, MapsActivity::class.java)
                 startActivity(intent)
+        }
+        else if (item.itemId == 2){
+            val intent=Intent(this, SignInActivity::class.java)
+            startActivity(intent)
         }
         return super.onOptionsItemSelected(item)
     }
