@@ -73,7 +73,7 @@ class MyRestController(private val coordinateDAO: CoordinateDAO) {
         return coordinateList.map { CoordinateBean(it!!.id_coordinate, it.long_coordinate, it.lat_coordinate) }
     }
 }
-*/
+
 
 
         //Enregistrement des joueurs(POST)//
@@ -87,18 +87,6 @@ class MyRestController(private val coordinateDAO: CoordinateDAO) {
 
             //}
         //}
-
-        //Envoi de la position du client(POST)//
-
-        //http://localhost:8080/setCoordinate
-        //Permet d’envoyer les coordonnées de la position du client
-        //JSON : { "id_coordinate" : 1, "lat_coordinate" : 41.40338, "long_coordinate" : 2.17403 }
-        @PostMapping("/setCoordinate")
-        fun receiveJson( @RequestBody coordinate: CoordinateBean ): CoordinateBean {
-            println("/testSetCoordinate : Longitude= " + coordinate.long_coordinate)
-            println("/testSetCoordinate : Latitude= " + coordinate.lat_coordinate)
-            return coordinate
-        }
 
         //Gestion de connexion(POST)//
 
@@ -123,6 +111,8 @@ class MyRestController(private val coordinateDAO: CoordinateDAO) {
         fun profil(){ }
 
     }
+
+ */
 
 
 
