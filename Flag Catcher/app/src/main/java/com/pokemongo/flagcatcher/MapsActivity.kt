@@ -57,7 +57,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.InfoWind
         /*tv = findViewById(R.id.tv)
         progressBar = findViewById(R.id.progressBar)*/
 
-<<<<<<< HEAD
+
 
         thread {
             //Affichage simple d'un objet toulouse de type CoordinateBean de coordonnée 43,3512 - 1,2938
@@ -98,11 +98,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.InfoWind
         tv = findViewById(R.id.tv)
         tvError = findViewById(R.id.tvError)
         progressBar = findViewById(R.id.progressBar)
-=======
-        /*super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_maps)
-        tv = findViewById(R.id.tv)
-        progressBar = findViewById(R.id.progressBar)*/
+
 
 
 
@@ -125,7 +121,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.InfoWind
 
 
 
->>>>>>> Remi
+
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
@@ -182,7 +178,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.InfoWind
 
 
     //Callback de la demande de permission
-   /* override fun onRequestPermissionsResult(
+   override fun onRequestPermissionsResult(
         requestCode: Int,
         permissions: Array<String?>,
         grantResults: IntArray
@@ -212,12 +208,12 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.InfoWind
             try {
                 //Chercher la donnée
 
-                val coordi: LatLng = WSUtils.getCoordinate()
+                val coordi: ArrayList<CoordinateBean> = WSUtils.getCoordinate()
 
                 //val coord = WSUtils.getCoordinate()
 
                 //Mettre à jour l'IHM
-                showCoordinateBeanOnUIThread(coordi)
+                //showCoordinateBeanOnUIThread(coordi)
             } catch (e: Exception) {
                 //Affiche le detail de l'erreur dans la console
                 e.printStackTrace()
@@ -244,7 +240,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.InfoWind
             }
         }
         return bestLocation
-    }*/
+    }
 
     /* -------------------------------- */
     // Mettre à jour l'IHM
