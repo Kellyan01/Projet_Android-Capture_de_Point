@@ -17,6 +17,8 @@ data class CoordinateBean(
     constructor() : this(0, 0.0,0.0)
 }
 
+data class ErrorBean(var message : String)
+
 
 
 

@@ -2,39 +2,51 @@ package com.pokemongo.pokemongo
 
 import com.pokemongo.pokemongo.bean.CoordinateBean
 import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.PostMapping
+import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RestController
+import javax.servlet.http.HttpServletResponse
 
 
 @RestController
 class MyRestController(private val coordinateDAO: CoordinateDAO) {
 
-        //http://localhost:8080/test
-        @GetMapping("/test")
-        fun testMethode(): String {
-            println("/test")
-            return "helloWorld"
-        }
+    //http://localhost:8080/test
+    @GetMapping("/test")
+    fun testMethode(): String {
+        println("/test")
+        return "helloWorld"
+    }
 
-        //http://localhost:8080/getCoordinate
-        //Permet de recuperer les coordonées du flag
-        @GetMapping("/getCoordinate")
-        fun getCoordinate(): CoordinateDAO {
-            println("/getCoordinate ")
-
-            return this.coordinateDAO
+    //http://localhost:8080/getCoordinate
+    //Permet de recuperer les coordonées du flag
+    @GetMapping("/getCoordinate")
+    fun getCoordinate(response: HttpServletResponse): Any? {
+        println("/getCoordinate ")
+         try {
+            return coordinateDAO.findAll()
+        } catch (e: Exception) {
+            e.printStackTrace()
+            response.status = 518
+            return null
         }
+    }
+
+
+    //http://localhost:8080/setCoordinate
+    //Permet de creer les positions du flag et de les inscrire dans la DB
+    @PostMapping("/setCoordinate")
+    fun setCoordinate(coordinate: CoordinateBean,response: HttpServletResponse) {
+        println("/setCoordinate ")
+        try {
+            coordinateDAO.save(coordinate)
+        } catch (e: Exception) {
+            e.printStackTrace()
+            response.status = 518
+        }
+    }
 }
 
-    //    //http://localhost:8080/setCoordinate
-    //    //Permet d’envoyer les coordonnées de la position du client
-    //    @PostMapping("/setCoordinate")
-    //    fun receiveJson(
-    //        @RequestBody coordinate: com.pokemongo.pokemongo.Bean.CoordinateBean
-    //    ): com.pokemongo.pokemongo.Bean.CoordinateBean {
-    //        println("/testSetCoordinate : Longitude= " + coordinate.long_coordinate)
-    //        println("/testSetCoordinate : Latitude= " + coordinate.lat_coordinate)
-    //        return coordinate
-    //    }
 /*
 @RestController
     class CoordinateDAO(private var coordinateDAO: CoordinateDAO) {
