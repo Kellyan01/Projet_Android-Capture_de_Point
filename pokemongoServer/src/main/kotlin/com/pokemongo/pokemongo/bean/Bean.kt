@@ -22,7 +22,7 @@ data class CoordinateBean(
 data class UserBean(
 
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
-    var id_coordinate: Int,
+    var id_user: Int,
     var name_user: String,
     var password_user: String,
     var email_user: String) {

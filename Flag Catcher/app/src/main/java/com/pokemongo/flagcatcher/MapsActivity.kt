@@ -6,10 +6,8 @@ import android.content.pm.PackageManager
 import android.location.Location
 import android.location.LocationManager
 import android.os.Bundle
-
 import android.util.Log
 import android.view.LayoutInflater
-
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
@@ -198,29 +196,40 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.InfoWind
     private fun afficherLocalisation() {
         val location = getLastKnownLocation()
         if (location != null) {
-            tv!!.text = location.latitude.toString() + " " + location.longitude
+
+            Thread {
+                try {
+                    runOnUiThread {
+                        //Création et Affichage du Marker
+                        var markerUser = MarkerOptions()
+                        markerUser.position(
+                            LatLng(location.latitude, location.longitude)
+                        )
+                        Log.w("MY TAG MAKER", "CREATION MARKER")
+                        markerUser.icon(
+                            BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED)
+                        )
+                        Log.w("MY TAG MAKER", "ICON MARKER")
+                        mMap.addMarker(markerUser).tag = location
+                        Log.w("MY TAG MAKER", "AFFICHAGE MARKER")
+                    }
+
+                    //Mettre à jour l'IHM
+                    //showCoordinateBeanOnUIThread(coordi)
+                } catch (e: Exception) {
+                    //Affiche le detail de l'erreur dans la console
+                    e.printStackTrace()
+                    setError("Error = " + e.message)
+                }
+                showProgressBar(false)
+            }.start()
+           // tv!!.text = location.latitude.toString() + " " + location.longitude
         } else {
             tv?.setText("Impossible de trouver la localisation")
         }
         showProgressBar(true)
         setError(null)
-        Thread {
-            try {
-                //Chercher la donnée
 
-                val coordi: ArrayList<CoordinateBean> = WSUtils.getCoordinate()
-
-                //val coord = WSUtils.getCoordinate()
-
-                //Mettre à jour l'IHM
-                //showCoordinateBeanOnUIThread(coordi)
-            } catch (e: Exception) {
-                //Affiche le detail de l'erreur dans la console
-                e.printStackTrace()
-                setError("Error = " + e.message)
-            }
-            showProgressBar(false)
-        }.start()
     }
 
     private fun getLastKnownLocation(): Location? {
