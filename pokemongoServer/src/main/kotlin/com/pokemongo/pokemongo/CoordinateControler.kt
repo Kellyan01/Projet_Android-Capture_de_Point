@@ -1,6 +1,5 @@
 package com.pokemongo.pokemongo
 
-import UsersDAO
 import com.pokemongo.pokemongo.bean.CoordinateBean
 import com.pokemongo.pokemongo.bean.UsersBean
 import org.springframework.web.bind.annotation.GetMapping
@@ -35,7 +34,6 @@ class MyRestController(private val coordinateDAO: CoordinateDAO, private val use
         }
     }
 
-
     //http://localhost:8080/setCoordinate
     //Permet de creer les positions du flag et de les inscrire dans la DB
     @PostMapping("/setCoordinate")
@@ -55,17 +53,14 @@ class MyRestController(private val coordinateDAO: CoordinateDAO, private val use
     //http://localhost:8080/register
     //JSON : { "id_user" : 1, "name" : "toto", "password": "motdepasse”, "mail": "mon@mail.com” }
     @PostMapping("/register")
-    fun register(user: UsersBean) {
-        println("/login name= " + user.name_user + ", password= " + user.password_user + ", mail= " + user.email_user)
-        usersDAO.save(user)
+    fun register(@RequestBody users: UsersBean) {
+        println("/login name = " + users.name_users + ", password = " + users.password_users + ", mail = " + users.email_users)
+        usersDAO.save(users)
     }
 }
 
 
-
-
 /*
-
         //Gestion de connexion(POST)//
 
         //http://localhost:8080/login
