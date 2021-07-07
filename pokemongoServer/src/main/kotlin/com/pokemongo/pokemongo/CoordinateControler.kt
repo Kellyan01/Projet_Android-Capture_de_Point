@@ -19,10 +19,13 @@ import org.springframework.web.bind.annotation.RestController
         //http://localhost:8080/getCoordinate
         //Permet de recuperer les coordonées du flag
         @GetMapping("/getCoordinate")
-        fun StudentBeantestJson(): CoordinateBean {
-            println("//getCoordinate ")
-
-            return CoordinateBean(1,12.1240,12.02133)
+        fun getCoordinate(): ArrayList<CoordinateBean> {
+            println("/getCoordinate")
+            val coordinateList = ArrayList<CoordinateBean>()
+            coordinateList.add(CoordinateBean(1,12.1240,12.021331))
+            coordinateList.add(CoordinateBean(2,12.1240,12.021331))
+            coordinateList.add(CoordinateBean(3,12.1240,12.021331))
+            return coordinateList
         }
     }
 

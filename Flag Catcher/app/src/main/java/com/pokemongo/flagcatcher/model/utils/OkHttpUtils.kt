@@ -2,6 +2,7 @@ package com.pokemongo.flagcatcher.model.utils
 
 
 import android.util.Log
+import com.google.gson.Gson
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
 import okhttp3.Request
@@ -21,12 +22,18 @@ object OkhttpUtils {
         val response = client.newCall(request).execute()
 
         //Analyse du code retour
-        return if (response.code !in 200..299) {
-            throw Exception("Réponse du serveur incorrect : ${response.code}")
-        } else {
-            //Résultat de la requete.
-            response.body?.string() ?: ""
-        }
+        return
+            if(response.code == 518) {
+                val error =  Gson().fromJson(response.body?.string(), ErrorBean:class.java)
+                throw Exception(error.message)
+            }
+            else if (response.code !in 200..299) {
+                throw Exception("Réponse du serveur incorrect : ${response.code}")
+            } else {
+                //Résultat de la requete.
+                response.body?.string() ?: ""
+
+            }
 
 
     }

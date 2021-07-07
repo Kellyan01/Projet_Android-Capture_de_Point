@@ -42,10 +42,32 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
             .findFragmentById(R.id.map) as SupportMapFragment
         mapFragment.getMapAsync(this)
 
-        super.onCreate(savedInstanceState)
+        /*super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_maps)
         tv = findViewById(R.id.tv)
-        progressBar = findViewById(R.id.progressBar)
+        progressBar = findViewById(R.id.progressBar)*/
+
+
+
+        Thread {
+
+            try {
+                //Va Chercher la donnée
+                //var test: String = "LA PUTAIN de methode test"
+                var test = WSUtils.getCoordinate()
+                println(test)
+
+            } catch (e: Exception) {
+                //Affiche le detail de l'erreur dans la console
+                e.printStackTrace()
+                showErrorOnUiThread(e.message)
+            }
+
+        }.start()
+
+
+
+
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
@@ -88,7 +110,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
 
 
     //Callback de la demande de permission
-    override fun onRequestPermissionsResult(
+   /* override fun onRequestPermissionsResult(
         requestCode: Int,
         permissions: Array<String?>,
         grantResults: IntArray
@@ -144,7 +166,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
             }
         }
         return bestLocation
-    }
+    }*/
 
     /* -------------------------------- */
     // Mettre à jour l'IHM
