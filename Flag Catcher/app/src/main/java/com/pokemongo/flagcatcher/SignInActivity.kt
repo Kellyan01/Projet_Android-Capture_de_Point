@@ -16,8 +16,8 @@ class SignInActivity : AppCompatActivity() {
     private var signIn: Button? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
-
         super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_signin)
 
         etName = findViewById(R.id.etName)
         etPassword = findViewById(R.id.etPassword)
