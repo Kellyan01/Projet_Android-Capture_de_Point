@@ -52,84 +52,27 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.InfoWind
         val mapFragment = supportFragmentManager.findFragmentById(R.id.map) as SupportMapFragment
         mapFragment.getMapAsync(this)
 
-        //Création de l'objet toulouse
-        val toulouse = CoordinateBean(1, 1.2938, 43.3512)
-        Log.w("MY TAG toulouse", "CREATION DE TOULOUSE")
-        //Transformation de Toulouse en objet LatLng
-        val toulouseLatLng = LatLng(toulouse.lat_coordinate, toulouse.long_coordinate)
-        Log.w("MY TAG toulouse", "CREATION DE TOULOUSE LATLANG")
-
-
-
         thread {
             try {
                 //Récupération de la liste de point au format ArrayList<CoordinateBean>
                 val pointList = WSUtils.getCoordinate()
                 Log.w("MY TAG PointList", pointList.toString())
-
-                //Affichage simple d'un objet toulouse de type CoordinateBean de coordonnée 43,3512 - 1,2938
-
-                //Modification de la partie graphique
-                runOnUiThread {
-                    //On efface les point existant de la MAP
-                    mMap.clear()
-                    Log.w("MY TAG MAP", "Effacement des points")
-
-                    //Centrage de la caméra sur les coordonnées de Toulouse avec zoom x5
-                    mMap.animateCamera(
-                        CameraUpdateFactory.newLatLngZoom(toulouseLatLng, 5f)
-                    )
-                    Log.w("MY TAG MAP", "Mouvement CAMERA")
-
-                    //Création et Affichage du Marker
-                    var markerToulouse = MarkerOptions()
-                    markerToulouse.position(
-                        LatLng(toulouse.lat_coordinate, toulouse.long_coordinate)
-                    )
-                    Log.w("MY TAG MAKER", "CREATION MARKER")
-                    markerToulouse.icon(
-                        BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN)
-                    )
-                    Log.w("MY TAG MAKER", "ICON MARKER")
-                    mMap.addMarker(markerToulouse).tag = toulouse
-                    Log.w("MY TAG MAKER", "AFFICHAGE MARKER")
-                }
+                refreshMap(pointList)
             }
             catch (e:Exception){
                 e.printStackTrace()
                 Log.w("MY TAG", "ERROR!!!")
             }
-
-
         }
+
         tv = findViewById(R.id.tv)
         tvError = findViewById(R.id.tvError)
         progressBar = findViewById(R.id.progressBar)
-
-
-
-
-        /*Thread {
-
-            try {
-                //Va Chercher la donnée
-                //var test: String = "LA PUTAIN de methode test"
-                var test = WSUtils.getCoordinate()
-                println(test)
-
-            } catch (e: Exception) {
-                //Affiche le detail de l'erreur dans la console
-                e.printStackTrace()
-                showErrorOnUiThread(e.message)
-            }
-
-        }.start()*/
-
-
-
-
-
     }
+
+    ////////////////////////////////////
+    ///////////// MENU /////////////////
+    ////////////////////////////////////
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         menu?.add(0, 0, 0, "Accueil")
@@ -138,7 +81,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.InfoWind
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        if(item.itemId ==1){
+        if(item.itemId ==0){
             val intent = Intent(this, MainActivity::class.java)
             startActivity(intent)
         }
@@ -165,9 +108,20 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.InfoWind
         //Génère getInfoWindow et getInfoContents
         mMap.setInfoWindowAdapter(this)
 
+        //Affichage du users et centrage caméra sur lui
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
             == PackageManager.PERMISSION_GRANTED        ) {
             mMap.isMyLocationEnabled = true
+
+            //Récupération des coordonnées users
+            var lat = getLastKnownLocation()!!.latitude
+            var long = getLastKnownLocation()!!.longitude
+            var usersPositionLatLang = LatLng(lat,long)
+
+            //Centrage de la caméra sur les coordonnées de users avec zoom x9
+            mMap.animateCamera(
+                CameraUpdateFactory.newLatLngZoom(usersPositionLatLang, 9f)
+            )
         }
     }
 
@@ -182,12 +136,10 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.InfoWind
             == PackageManager.PERMISSION_GRANTED
         ) {
             //On a la permission
-            //afficherLocalisation();
             mMap.isMyLocationEnabled
 
             //TODO Gérer l'affichage des coordonnées dans le TxtView
 
-            //tv!!.text = mMap.latitude + " " + mMap.longitude
         } else {
             //Etape 2 : On affiche la fenêtre de demande de permission
             ActivityCompat.requestPermissions(
@@ -198,8 +150,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.InfoWind
         }
     }
 
-
-    //Callback de la demande de permission
+   //Callback de la demande de permission
    override fun onRequestPermissionsResult(
         requestCode: Int,
         permissions: Array<String?>,
@@ -209,15 +160,25 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.InfoWind
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
             == PackageManager.PERMISSION_GRANTED
         ) {
-            //afficherLocalisation()
             mMap.isMyLocationEnabled
         } else {
             tv?.setText("Il faut la permission")
         }
     }
 
-        //OBSOLETE REMPLACE PAR mMap.isMyLocationEnabled = true DANS OnMapReady//
+    //Récupère les coordonnées de users pour centrer la caméra sur lui dans le onMapReady
+    fun getLastKnownLocation(): Location? {
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
+            == PackageManager.PERMISSION_DENIED
+        ) {
+            return null
+        }
+        var location = getSystemService(LOCATION_SERVICE) as LocationManager
+        return location.getProviders(true).map { location.getLastKnownLocation(it) }
+            .minByOrNull { it?.accuracy ?: Float.MAX_VALUE }
+    }
 
+    //OBSOLETE REMPLACE PAR mMap.isMyLocationEnabled = true DANS OnMapReady//
     /* private fun afficherLocalisation() {
         val location = getLastKnownLocation()
         if (location != null) {
@@ -280,6 +241,24 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.InfoWind
     // Mettre à jour l'IHM
     /* -------------------------------- */
 
+    fun refreshMap(coordList:ArrayList<CoordinateBean>){
+        //Modification de la partie graphique
+        runOnUiThread {
+            //On efface les point existant de la MAP
+            mMap.clear()
+            Log.w("MY TAG MAP", "Effacement des points")
+
+            //Création et Affichage du MArker pour chaque point
+            var j = 0
+            for(i in coordList) {
+                var markerPoint = MarkerOptions()
+                markerPoint.position(LatLng(coordList[j].lat_coordinate, coordList[j].long_coordinate))
+                markerPoint.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED))
+                mMap.addMarker(markerPoint).tag=coordList[j]
+                j++
+            }
+        }
+    }
 
     fun showCoordinateBeanOnUIThread(coordBean: LatLng) {
 
@@ -316,6 +295,10 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.InfoWind
         }
     }
 
+    ////////////////////////////////////////////////////////
+    ///////////// CUSTOMISATION DES MARKERS ////////////////
+    ////////////////////////////////////////////////////////
+    
         override fun getInfoWindow(p0: Marker?): View? {
             return null
         }
@@ -339,6 +322,5 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.InfoWind
             val ville: CoordinateBean? = p0?.tag as CoordinateBean?
             //Ferme la fenêtre
             p0?.hideInfoWindow()
-
         }
     }
