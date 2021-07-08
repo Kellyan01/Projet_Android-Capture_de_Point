@@ -31,6 +31,10 @@ data class UsersBean(
 
 data class ErrorBean(var message : String)
 
+data class LoginBean(var name_users: String, var password_users: String)
+
+
+
 
 
 

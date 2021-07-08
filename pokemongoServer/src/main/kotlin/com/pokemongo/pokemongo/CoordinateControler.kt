@@ -2,12 +2,19 @@ package com.pokemongo.pokemongo
 
 import com.pokemongo.pokemongo.bean.CoordinateBean
 import com.pokemongo.pokemongo.bean.ErrorBean
+import com.pokemongo.pokemongo.bean.LoginBean
 import com.pokemongo.pokemongo.bean.UsersBean
+import org.springframework.data.domain.Page
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RestController
 import javax.servlet.http.HttpServletResponse
+
+val erreurClient = ErrorBean("Erreur du client HTTP")
+val erreurServer = ErrorBean("Erreur du serveur HTTP")
+val erreurInfo =  ErrorBean("En attente ...")
+
 
 
 @RestController
@@ -30,7 +37,20 @@ class MyRestController(private val coordinateDAO: CoordinateDAO, private val use
             coordinateDAO.findAll()
         } catch (e: Exception) {
             e.printStackTrace()
-            response.status = 518
+            return when (response.status) {
+                in 400..499 -> {
+                    erreurClient
+                }
+                in 500..599 -> {
+                    erreurServer
+                }
+                in 100..199 -> {
+                    erreurInfo
+                }
+                else -> {
+                    return "Erreur inconnue"
+                }
+            }
         }
     }
 
@@ -42,7 +62,7 @@ class MyRestController(private val coordinateDAO: CoordinateDAO, private val use
     fun setCoordinate(@RequestBody coordinate: CoordinateBean, response: HttpServletResponse) {
         println("/setCoordinate ")
         try {
-            if (coordinate.lat_coordinate < 90 && coordinate.lat_coordinate> -90 && coordinate.long_coordinate < 180 && coordinate.long_coordinate > -180){
+            if (coordinate.lat_coordinate < 90 && coordinate.lat_coordinate > -90 && coordinate.long_coordinate < 180 && coordinate.long_coordinate > -180){
                 coordinateDAO.save(coordinate)
             }else{
                 println("Out of range")
@@ -61,11 +81,10 @@ class MyRestController(private val coordinateDAO: CoordinateDAO, private val use
     //JSON : { "name" : "toto", "password": "motdepasse", "mail": "mon@mail.com" }
     @PostMapping("/register")
     fun register(@RequestBody users: UsersBean, response: HttpServletResponse) {
-        println("/register")
-        println("/login name = " + users.name_users + ", password = " + users.password_users + ", mail = " + users.email_users)
+        println("/register name = " + users.name_users + ", password = " + users.password_users.hashCode() + ", mail = " + users.email_users)
         try {
+
             users.password_users = users.password_users.hashCode().toString()
-            println( users.password_users.hashCode())
             usersDAO.save(users)
         } catch (e: Exception) {
             e.printStackTrace()
@@ -79,15 +98,9 @@ class MyRestController(private val coordinateDAO: CoordinateDAO, private val use
     //Permet à l'utilisateur de se connecter côté client, après vérification du serveur auprès de la DB.
     //JSON : { "name" : "toto", "password": "motdepasse” }
     @PostMapping("/login")
-    fun login(@RequestBody user: UsersBean): String {
-        if(usersDAO.equals(user.name_users)){
-            return "Vous êtes connecté !"
-        }else{
-            return "Identifiants incorrects !"
-        }
+    fun login(@RequestBody login : LoginBean) {
+        println(login)
     }
-
-
 
 }
 
