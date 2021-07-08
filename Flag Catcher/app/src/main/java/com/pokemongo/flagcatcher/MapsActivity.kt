@@ -275,16 +275,6 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.InfoWind
         }
     }
 
-    fun showProgressBar(show: Boolean) {
-        runOnUiThread {
-            if (show) {
-                progressBar?.setVisibility(View.VISIBLE)
-            } else {
-                progressBar?.setVisibility(View.GONE)
-            }
-        }
-    }
-
     ////////////////////////////////////////////////////////
     ///////////// CUSTOMISATION DES MARKERS ////////////////
     ////////////////////////////////////////////////////////
