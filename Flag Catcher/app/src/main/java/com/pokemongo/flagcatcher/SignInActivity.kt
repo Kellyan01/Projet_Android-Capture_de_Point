@@ -48,6 +48,9 @@ class SignInActivity : AppCompatActivity() {
     }
 
     fun onSignInClick(view: View) {
+        val userInfo = users(name = etName?.text,
+            password = etPassword?.text,
+            mail = etEmail?.text)
         test?.setText("Nom = " + etName?.text + " Password = " + etPassword?.text + " Email = " + etEmail?.text)
     }
 }
