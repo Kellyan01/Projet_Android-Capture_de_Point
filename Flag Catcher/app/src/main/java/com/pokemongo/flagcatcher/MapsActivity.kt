@@ -1,6 +1,7 @@
 package com .pokemongo.flagcatcher
 
 import android.Manifest
+import android.app.AlertDialog
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.location.Location
@@ -14,6 +15,7 @@ import android.view.View
 import android.widget.ImageView
 import android.widget.ProgressBar
 import android.widget.TextView
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
@@ -26,6 +28,7 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.Marker
 import com.google.android.gms.maps.model.MarkerOptions
+import com.google.android.material.snackbar.Snackbar
 import com.pokemongo.flagcatcher.databinding.ActivityMapsBinding
 import com.pokemongo.flagcatcher.model.beans.CoordinateBean
 import com.pokemongo.flagcatcher.model.utils.WSUtils
@@ -37,6 +40,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.InfoWind
     private lateinit var mMap: GoogleMap
     private lateinit var binding: ActivityMapsBinding
     private lateinit var tv: TextView
+    private lateinit var tvError:TextView
     private lateinit var progressBar: ProgressBar
 
 
@@ -58,7 +62,16 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.InfoWind
                 //Récupération de la liste de point au format ArrayList<CoordinateBean>
                 val pointList = WSUtils.getCoordinate()
                 Log.w("MY TAG PointList", pointList.toString())
-                refreshMap(pointList)
+
+                if(pointList.isNullOrEmpty()) {
+                    Log.w("MY TAG ERROR ","Aucun Point à afficher" )
+                    tvError.text = "ERROR : Aucun Point à afficher !"
+                    tvError.isVisible = true
+                    progressBar.isVisible = false
+                }
+                else {
+                    refreshMap(pointList)
+                }
             }
             catch (e:Exception){
                 e.printStackTrace()
@@ -71,6 +84,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.InfoWind
 
         tv = findViewById(R.id.tv)
         progressBar = findViewById(R.id.progressBar)
+        tvError = findViewById(R.id.tvError)
     }
 
     ////////////////////////////////////
@@ -108,7 +122,9 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.InfoWind
 
         //Affichage du users et centrage caméra sur lui
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
-            == PackageManager.PERMISSION_GRANTED        ) {
+            == PackageManager.PERMISSION_GRANTED        )
+            //On a la permission
+            {
             mMap.isMyLocationEnabled = true
 
             //Récupération des coordonnées users
@@ -123,6 +139,11 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.InfoWind
             //Affichage Coordonnés user dans le TextView
             tv?.text ="Vos Coordonnées : Latitude : $lat - Longitude : $long"
         }
+        else {//On demande la Permission
+            ActivityCompat.requestPermissions(
+                this,
+                arrayOf(Manifest.permission.ACCESS_FINE_LOCATION),0)
+        }
     }
 
 
@@ -130,28 +151,6 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.InfoWind
     /////////////////         PERMISSION + LOCALISATION               //////////////////////
     ////////////////////////////////////////////////////////////////////////////////////////
 
-    /*//Click du bouton attribué avec l'attribut onClick dans le XML
-    fun onBtRefreshClick(view: View?) {
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
-            == PackageManager.PERMISSION_GRANTED
-        ) {
-            //On a la permission
-            mMap.isMyLocationEnabled
-
-            //Récupération des coordonnées users
-            var lat = getLastKnownLocation()!!.latitude
-            var long = getLastKnownLocation()!!.longitude
-            tv?.text ="Vos Coordonnées : Latitude : $lat - Longitude : $long"
-
-        } else {
-            //Etape 2 : On affiche la fenêtre de demande de permission
-            ActivityCompat.requestPermissions(
-                this,
-                arrayOf(Manifest.permission.ACCESS_FINE_LOCATION),
-                0
-            )
-        }
-    }*/
 
    //Callback de la demande de permission
    override fun onRequestPermissionsResult(
@@ -163,9 +162,21 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.InfoWind
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
             == PackageManager.PERMISSION_GRANTED
         ) {
-            mMap.isMyLocationEnabled
+            mMap.isMyLocationEnabled = true
+            //Récupération des coordonnées users
+            var lat = getLastKnownLocation()!!.latitude
+            var long = getLastKnownLocation()!!.longitude
+            var usersPositionLatLang = LatLng(lat,long)
+
+            //Centrage de la caméra sur les coordonnées de users avec zoom x9
+            mMap.animateCamera(
+                CameraUpdateFactory.newLatLngZoom(usersPositionLatLang, 9f)
+            )
+            //Affichage Coordonnés user dans le TextView
+            tv?.text ="Vos Coordonnées : Latitude : $lat - Longitude : $long"
+
         } else {
-            tv?.setText("Il faut la permission")
+            tvError.text="Il faut la permission"
         }
     }
 

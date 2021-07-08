@@ -26,7 +26,18 @@
         android:id="@+id/tv"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Coordonnées Joueurs :" />
+        android:text="Coordonnées Joueurs :"
+        android:textSize="16sp" />
+
+    <TextView
+        android:id="@+id/tvError"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_horizontal"
+        android:textColor="#D61313"
+        android:textSize="16sp"
+        android:visibility="invisible"
+        tools:visibility="visible" />
 
     <ProgressBar
         android:id="@+id/progressBar"
