@@ -4,6 +4,8 @@ import android.util.Log
 import com.google.gson.Gson
 import com.pokemongo.flagcatcher.model.beans.CoordinateBean
 import com.google.gson.reflect.TypeToken
+import com.pokemongo.flagcatcher.model.beans.LoginBean
+import com.pokemongo.flagcatcher.model.beans.UserBean
 
 // Constantes
 const val SERVER = "http://192.168.10.99:8080"
@@ -42,6 +44,26 @@ class WSUtils {
             val url = "$SERVER/setCoordinate"
             val outputJson = GSON.toJson(coordinate)
 
+            println(outputJson)
+            OkhttpUtils.sendPostOkHttpRequest(url, outputJson)
+
+        }
+
+        fun setUsers(user: UserBean) {
+
+            val url = "$SERVER/register"
+            val outputJson = GSON.toJson(user)
+
+            println(outputJson)
+            OkhttpUtils.sendPostOkHttpRequest(url, outputJson)
+
+        }
+
+        fun loginUsers(user:LoginBean) {
+
+            val url = "$SERVER/login"
+            val outputJson = GSON.toJson(user)
+            Log.w("MY TAG", outputJson.toString())
             println(outputJson)
             OkhttpUtils.sendPostOkHttpRequest(url, outputJson)
 
