@@ -1,6 +1,7 @@
 package com.pokemongo.pokemongo
 
 import com.pokemongo.pokemongo.bean.CoordinateBean
+import com.pokemongo.pokemongo.bean.ErrorBean
 import com.pokemongo.pokemongo.bean.UsersBean
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PostMapping
@@ -30,7 +31,6 @@ class MyRestController(private val coordinateDAO: CoordinateDAO, private val use
         } catch (e: Exception) {
             e.printStackTrace()
             response.status = 518
-            null
         }
     }
 
@@ -42,12 +42,15 @@ class MyRestController(private val coordinateDAO: CoordinateDAO, private val use
     fun setCoordinate(@RequestBody coordinate: CoordinateBean, response: HttpServletResponse) {
         println("/setCoordinate ")
         try {
-            //TODO controle data
-
-            coordinateDAO.save(coordinate)
+            if (coordinate.lat_coordinate < 90 && coordinate.lat_coordinate> -90 && coordinate.long_coordinate < 180 && coordinate.long_coordinate > -180){
+                coordinateDAO.save(coordinate)
+            }else{
+                println("Out of range")
+            }
         } catch (e: Exception) {
             e.printStackTrace()
-            response.status = 518
+            response.status = 404
+
         }
 
     }
@@ -55,7 +58,7 @@ class MyRestController(private val coordinateDAO: CoordinateDAO, private val use
 
     //Enregistrement des joueurs(POST)/
     //http://localhost:8080/register
-    //JSON : { "id_user" : 1, "name" : "toto", "password": "motdepasse", "mail": "mon@mail.com" }
+    //JSON : { "name" : "toto", "password": "motdepasse", "mail": "mon@mail.com" }
     @PostMapping("/register")
     fun register(@RequestBody users: UsersBean, response: HttpServletResponse) {
         println("/register")
@@ -70,14 +73,17 @@ class MyRestController(private val coordinateDAO: CoordinateDAO, private val use
 
 
     //Gestion de connexion(POST)//
-
     //http://localhost:8080/login
     //Permet à l'utilisateur de se connecter côté client, après vérification du serveur auprès de la DB.
-    //JSON : { "id_user" : 12, "name" : "toto", "password": "motdepasse” }
-    //@PostMapping("/login")
-    //fun login(@RequestBody user: UsersBean) {
-
-    //}
+    //JSON : { "name" : "toto", "password": "motdepasse” }
+    @PostMapping("/login")
+    fun login(@RequestBody user: UsersBean): String {
+        if(usersDAO.equals(user.name_users)){
+            return "Vous êtes connecté !"
+        }else{
+            return "Identifiants incorrects !"
+        }
+    }
 
 
 
