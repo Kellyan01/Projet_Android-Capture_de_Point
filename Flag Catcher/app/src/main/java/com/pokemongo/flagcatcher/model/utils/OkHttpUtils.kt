@@ -46,10 +46,8 @@ object OkhttpUtils {
 
         //Création de la requete
         val request = Request.Builder().url(url).post(body).build()
-
         //Execution de la requête
         val response = client.newCall(request).execute()
-
         //Analyse du code retour
         return if (response.code !in 200..299) {
             throw Exception("Réponse du serveur incorrect : ${response.code}")

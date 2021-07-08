@@ -2,6 +2,7 @@ package com.pokemongo.flagcatcher
 
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
@@ -9,6 +10,11 @@ import android.widget.Button
 import android.widget.EditText
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
+import com.pokemongo.flagcatcher.model.beans.UserBean
+import com.pokemongo.flagcatcher.model.utils.GSON
+import com.pokemongo.flagcatcher.model.utils.OkhttpUtils.sendPostOkHttpRequest
+import java.lang.Exception
+import kotlin.concurrent.thread
 
 class SignInActivity : AppCompatActivity() {
 
@@ -48,9 +54,17 @@ class SignInActivity : AppCompatActivity() {
     }
 
     fun onSignInClick(view: View) {
-        val userInfo = users(name = etName?.text,
-            password = etPassword?.text,
-            mail = etEmail?.text)
-        test?.setText("Nom = " + etName?.text + " Password = " + etPassword?.text + " Email = " + etEmail?.text)
+
+        thread { try {
+            val User = UserBean(0, etName?.text.toString(), etPassword?.text.toString(), etEmail?.text.toString())
+            val outputJson = GSON.toJson(User)
+            sendPostOkHttpRequest("http://192.168.10.99:8080/register", outputJson)
+        }
+        catch (e:Exception){
+            e.printStackTrace()
+            Log.w("MY TAG", "ERROR 2!!!")
+        }}
+
+        test?.setText("${etName?.text}, ${etPassword?.text}, ${etEmail?.text}")
     }
 }

@@ -1,3 +1,3 @@
 package com.pokemongo.flagcatcher.model.beans
 
-data class UserBean  ( val id_user: Int,  val name_user: String, val password_user: String, val email_user: String)
+data class UserBean  ( val id_users: Int = 0,  val name_users: String, val password_users: String, val email_users: String)
