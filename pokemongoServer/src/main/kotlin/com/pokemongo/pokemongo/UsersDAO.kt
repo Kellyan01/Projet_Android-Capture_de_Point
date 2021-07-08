@@ -11,9 +11,6 @@ interface UsersDAO: JpaRepository<UsersBean, Int> {//<Bean, Typage Id> {
     @Query("from UsersBean where name_users= ?1 AND email_users=?2")
     fun findByEmail_usersAndPassword_users(email:String, passWord : String) : UsersBean?
 
-    @Query("from UsersBean where  name_users= ?1 AND email_users=?2 ")
-    fun findByName_usersOrEmail_users(name: String, email: String): UsersBean?
-
     @Query("from UsersBean where  name_users= ?1")
     fun findByName_users(name: String): UsersBean?
 

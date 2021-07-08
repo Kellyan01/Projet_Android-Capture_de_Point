@@ -14,8 +14,6 @@ data class CoordinateBean(
     constructor() : this(0, 0.0,0.0)
 }
 
-
-
 @Entity
 @Table(name = "users")
 data class UsersBean(

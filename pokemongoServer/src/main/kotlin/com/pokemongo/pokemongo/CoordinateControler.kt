@@ -4,7 +4,6 @@ import com.pokemongo.pokemongo.bean.CoordinateBean
 import com.pokemongo.pokemongo.bean.ErrorBean
 import com.pokemongo.pokemongo.bean.LoginBean
 import com.pokemongo.pokemongo.bean.UsersBean
-import jdk.nashorn.internal.objects.NativeArray.forEach
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
@@ -29,6 +28,7 @@ class MyRestController(private val coordinateDAO: CoordinateDAO, private val use
     fun getCoordinate(response: HttpServletResponse): Any? {
         println("/getCoordinate ")
         return try {
+            // return la liste de tous les points présents dans la DB
             coordinateDAO.findAll()
         } catch (e: Exception) {
             e.printStackTrace()
@@ -44,16 +44,17 @@ class MyRestController(private val coordinateDAO: CoordinateDAO, private val use
     @PostMapping("/setCoordinate")
     fun setCoordinate(@RequestBody coordinate: CoordinateBean, response: HttpServletResponse): ErrorBean? {
         println("/setCoordinate ")
-        try {
+        return try {
+            // Condition empechant la création de points GPS ayant des valeurs abberantes
             if (coordinate.lat_coordinate > 90 || coordinate.lat_coordinate < -90 || coordinate.long_coordinate > 180 ||coordinate.long_coordinate < -180){
                 throw Exception("Coordonnées out of range")
             }
             coordinateDAO.save(coordinate)
-            return null
+            null
         } catch (e: Exception) {
             e.printStackTrace()
             response.status = 518
-            return ErrorBean("Erreur : " + e.message)
+            ErrorBean("Erreur : " + e.message)
         }
     }
 
@@ -64,16 +65,17 @@ class MyRestController(private val coordinateDAO: CoordinateDAO, private val use
     @PostMapping("/register")
     fun register(@RequestBody user: UsersBean, response: HttpServletResponse) :Any? {
         println("/register name = " + user.name_users + ", password = " + user.password_users.hashCode() + ", mail = " + user.email_users)
+        // requetes SQL pour trouver sur le nom et le mail du user existe dans la DB
         val checkUserName = usersDAO.findByName_users(user.name_users)
         val checkUserMail = usersDAO.findByEmail_users(user.email_users)
         try {
-            println(checkUserName)
-            println(checkUserMail)
+            // Si les 2 champs n'existent pas, l'enregistrement peut s'effectuer
             if (checkUserName==null && checkUserMail==null) {
                 user.password_users = user.password_users.hashCode().toString()
                 usersDAO.save(user)
                 return "enregistrement ok"
             }else {
+            // Si les 1 des 2 ||les 2 champs existent dans la DB =>
                 return "Identifiants déjà utilisés"
             }
         } catch (e: Exception) {
