@@ -10,27 +10,25 @@ import android.widget.Button
 import android.widget.EditText
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
-import com.pokemongo.flagcatcher.model.beans.UserBean
-import com.pokemongo.flagcatcher.model.utils.GSON
-import com.pokemongo.flagcatcher.model.utils.OkhttpUtils.sendPostOkHttpRequest
+import com.pokemongo.flagcatcher.model.utils.OkhttpUtils.sendGetOkHttpRequest
 import java.lang.Exception
 import kotlin.concurrent.thread
 
-class SignInActivity : AppCompatActivity() {
+class LoginActivity : AppCompatActivity() {
 
     private var etName: EditText? = null
     private var etPassword: EditText? = null
-    private var etEmail: EditText? = null
-    private var signIn: Button? = null
+    private var test: TextView? = null
+    private var LogIn: Button? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_signin)
+        setContentView(R.layout.activity_login)
 
         etName = findViewById(R.id.etName)
         etPassword = findViewById(R.id.etPassword)
-        etEmail = findViewById(R.id.etEmail)
-        signIn = findViewById(R.id.signIn)
+        test = findViewById(R.id.test)
+        LogIn = findViewById(R.id.signIn)
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
@@ -50,16 +48,14 @@ class SignInActivity : AppCompatActivity() {
         }
         return super.onOptionsItemSelected(item)
     }
-    
-    fun onSignInClick(view: View) {
+
+    fun onLogInClick(view: View) {
 
         thread {
             try {
-                val User = UserBean(0, etName?.text.toString(), etPassword?.text.toString(), etEmail?.text.toString())
-                val outputJson = GSON.toJson(User)
-                sendPostOkHttpRequest("http://192.168.10.99:8080/register", outputJson)
+                sendGetOkHttpRequest("http://192.168.10.99:8080/login")
             }
-            catch (e:Exception){
+            catch (e: Exception){
                 e.printStackTrace()
                 Log.w("MY TAG", "ERROR 2!!!")
             }
