@@ -28,12 +28,22 @@ class WSUtils {
             val point = object : TypeToken<ArrayList<CoordinateBean>>() { }.type
             Log.w("MY TAG GetCoordinate", "POINT")
 
-            val pointList = GSON.fromJson<ArrayList<CoordinateBean>>(request.toString(), point)
+            val pointList = GSON.fromJson<ArrayList<CoordinateBean>>(request, point)
             Log.w("MY TAG GetCoordinate", "POINTLIST JSON")
 
             pointList.forEach{it: CoordinateBean -> Log.w("MY TAG JSON", "JSON = $it")}
 
             return pointList
+        }
+
+        fun setCoordinate(coordinate: CoordinateBean) {
+
+            val url = "$SERVER/setCoordinate"
+            val outputJson = GSON.toJson(coordinate)
+
+            println(outputJson)
+            OkhttpUtils.sendPostOkHttpRequest(url, outputJson)
+
         }
 
         fun getTest(): String{

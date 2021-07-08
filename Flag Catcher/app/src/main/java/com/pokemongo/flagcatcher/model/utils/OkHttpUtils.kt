@@ -13,7 +13,7 @@ val MEDIA_TYPE_JSON = "application/json; charset=utf-8".toMediaType()
 object OkhttpUtils {
     val client = OkHttpClient()
 
-    fun sendGetOkHttpRequest(url: String) {
+    fun sendGetOkHttpRequest(url: String): String {
         println("url : $url")
 
         //Création de la requete
@@ -23,8 +23,7 @@ object OkhttpUtils {
         val response = client.newCall(request).execute()
 
         //Analyse du code retour
-        return
-            if(response.code == 518) {
+        return            if(response.code == 518) {
                 val error =  Gson().fromJson(response.body?.string(), ErrorBean::class.java)
                 throw Exception(error.message)
             }
