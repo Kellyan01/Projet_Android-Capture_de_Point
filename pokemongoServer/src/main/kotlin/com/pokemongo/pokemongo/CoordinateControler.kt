@@ -4,16 +4,12 @@ import com.pokemongo.pokemongo.bean.CoordinateBean
 import com.pokemongo.pokemongo.bean.ErrorBean
 import com.pokemongo.pokemongo.bean.LoginBean
 import com.pokemongo.pokemongo.bean.UsersBean
+import jdk.nashorn.internal.objects.NativeArray.forEach
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RestController
 import javax.servlet.http.HttpServletResponse
-
-val erreurClient = ErrorBean("Erreur du client HTTP")
-val erreurServer = ErrorBean("Erreur du serveur HTTP")
-val erreurInfo =  ErrorBean("En attente ...")
-
 
 
 @RestController
@@ -36,63 +32,54 @@ class MyRestController(private val coordinateDAO: CoordinateDAO, private val use
             coordinateDAO.findAll()
         } catch (e: Exception) {
             e.printStackTrace()
-            return when (response.status) {
-                in 400..499 -> {
-                    erreurClient
-                }
-                in 500..599 -> {
-                    erreurServer
-                }
-                in 100..199 -> {
-                    erreurInfo
-                }
-                else -> {
-                    return "Erreur inconnue"
-                }
-            }
+            response.status = 517
+            return ErrorBean("Erreur : " + e.message)
         }
     }
 
     //http://localhost:8080/setCoordinate
     //Permet de creer les positions du flag et de les inscrire dans la DB
-    //JSON envoyé : //JSON : { "id_coordinate" : 1, "long_coordinate" : " ", "lat_coordinate": " " }
+    //JSON envoyé : //JSON : { "id_coordinate" : 0, "long_coordinate" : " ", "lat_coordinate": " " }
     // le champ id_coordinate n'est pas necessaire, renvoie une erreur sur long ou lat sont null
     @PostMapping("/setCoordinate")
-    fun setCoordinate(@RequestBody coordinate: CoordinateBean, response: HttpServletResponse) {
+    fun setCoordinate(@RequestBody coordinate: CoordinateBean, response: HttpServletResponse): ErrorBean? {
         println("/setCoordinate ")
         try {
-            if (coordinate.lat_coordinate < 90 && coordinate.lat_coordinate > -90 && coordinate.long_coordinate < 180 && coordinate.long_coordinate > -180){
-                coordinateDAO.save(coordinate)
-            }else{
-                println("Out of range")
+            if (coordinate.lat_coordinate > 90 || coordinate.lat_coordinate < -90 || coordinate.long_coordinate > 180 ||coordinate.long_coordinate < -180){
+                throw Exception("Coordonnées out of range")
             }
+            coordinateDAO.save(coordinate)
+            return null
         } catch (e: Exception) {
             e.printStackTrace()
-            response.status = 404
-
+            response.status = 518
+            return ErrorBean("Erreur : " + e.message)
         }
-
     }
 
 
     //Enregistrement des joueurs(POST)/
     //http://localhost:8080/register
-    //JSON : { "name" : "toto", "password": "motdepasse", "mail": "mon@mail.com" }
+    //JSON : { "name_users" : "toto", "password_users": "motdepasse", "email_users": "mon@mail.com" }
     @PostMapping("/register")
-    fun register(@RequestBody user: UsersBean, response: HttpServletResponse): Any {
+    fun register(@RequestBody user: UsersBean, response: HttpServletResponse) :Any? {
         println("/register name = " + user.name_users + ", password = " + user.password_users.hashCode() + ", mail = " + user.email_users)
+        val checkUserName = usersDAO.findByName_users(user.name_users)
+        val checkUserMail = usersDAO.findByEmail_users(user.email_users)
         try {
-            if (user.name_users.equals(usersDAO.findByName_users(user)) || user.email_users.equals(usersDAO.findByEmail_users(user)) ) {
-                return "Identifiants déja utilisés"
-            }else{
+            println(checkUserName)
+            println(checkUserMail)
+            if (checkUserName==null && checkUserMail==null) {
                 user.password_users = user.password_users.hashCode().toString()
                 usersDAO.save(user)
                 return "enregistrement ok"
+            }else {
+                return "Identifiants déjà utilisés"
             }
         } catch (e: Exception) {
             e.printStackTrace()
-            response.status = 518
-            return erreurClient
+            response.status = 519
+            return ErrorBean("Erreur : " + e.message)
         }
     }
 
