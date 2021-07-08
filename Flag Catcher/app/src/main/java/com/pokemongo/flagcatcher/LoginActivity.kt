@@ -10,14 +10,19 @@ import android.widget.Button
 import android.widget.EditText
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
+import com.google.android.material.snackbar.Snackbar
+import com.pokemongo.flagcatcher.model.beans.ErrorBean
+import com.pokemongo.flagcatcher.model.beans.LoginBean
+import com.pokemongo.flagcatcher.model.beans.UserBean
 import com.pokemongo.flagcatcher.model.utils.OkhttpUtils.sendGetOkHttpRequest
+import com.pokemongo.flagcatcher.model.utils.WSUtils
 import java.lang.Exception
 import kotlin.concurrent.thread
 
 class LoginActivity : AppCompatActivity() {
 
-    private var etName: EditText? = null
-    private var etPassword: EditText? = null
+    private var etNameLog: EditText? = null
+    private var etPasswordLog: EditText? = null
     private var test: TextView? = null
     private var LogIn: Button? = null
 
@@ -25,8 +30,8 @@ class LoginActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_login)
 
-        etName = findViewById(R.id.etName)
-        etPassword = findViewById(R.id.etPassword)
+        etNameLog = findViewById(R.id.etNameLog)
+        etPasswordLog = findViewById(R.id.etPasswordLog)
         test = findViewById(R.id.test)
         LogIn = findViewById(R.id.signIn)
     }
@@ -50,14 +55,28 @@ class LoginActivity : AppCompatActivity() {
     }
 
     fun onLogInClick(view: View) {
-
-        thread {
-            try {
-                sendGetOkHttpRequest("http://192.168.10.99:8080/login")
-            }
-            catch (e: Exception){
-                e.printStackTrace()
-                Log.w("MY TAG", "ERROR 2!!!")
+        if(etNameLog?.text.isNullOrBlank() || etPasswordLog?.text.isNullOrBlank()) {
+            val snackbar = Snackbar
+                .make(view, "Remplissez tous les champs", Snackbar.LENGTH_LONG)
+                .setAction("NOOOOO!!!!!!") { }
+            snackbar.show()
+        }
+        else {
+            thread {
+                try {
+                    val user = LoginBean(
+                        etNameLog!!.text.toString(),
+                        etPasswordLog!!.text.toString()
+                    )
+                    WSUtils.loginUsers(user)
+                    val snackbar = Snackbar
+                        .make(view, "Vous êtes connecté", Snackbar.LENGTH_LONG)
+                        .setAction("YES!!!") { }
+                    snackbar.show()
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                    Log.w("MY TAG", "ERROR CONNEXION!!!")
+                }
             }
         }
     }

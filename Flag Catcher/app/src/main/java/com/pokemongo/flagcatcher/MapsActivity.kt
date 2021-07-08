@@ -1,4 +1,4 @@
-package com.pokemongo.flagcatcher
+package com .pokemongo.flagcatcher
 
 import android.Manifest
 import android.content.Intent
@@ -17,6 +17,7 @@ import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.core.view.isVisible
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
@@ -35,11 +36,8 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.InfoWind
 
     private lateinit var mMap: GoogleMap
     private lateinit var binding: ActivityMapsBinding
-    private var tv: TextView? = null
-    private var tvError: TextView? = null
-    private var progressBar: ProgressBar? = null
-    private lateinit var ivMark: ImageView
-    private lateinit var tvMark: TextView
+    private lateinit var tv: TextView
+    private lateinit var progressBar: ProgressBar
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -54,6 +52,9 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.InfoWind
 
         thread {
             try {
+                runOnUiThread {
+                    progressBar.isVisible = true
+                }
                 //Récupération de la liste de point au format ArrayList<CoordinateBean>
                 val pointList = WSUtils.getCoordinate()
                 Log.w("MY TAG PointList", pointList.toString())
@@ -62,11 +63,13 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.InfoWind
             catch (e:Exception){
                 e.printStackTrace()
                 Log.w("MY TAG", "ERROR!!!")
+                runOnUiThread {
+                    progressBar.isVisible = false
+                }
             }
         }
 
         tv = findViewById(R.id.tv)
-        tvError = findViewById(R.id.tvError)
         progressBar = findViewById(R.id.progressBar)
     }
 
@@ -76,17 +79,12 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.InfoWind
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         menu?.add(0, 0, 0, "Accueil")
-        menu?.add(0,2,0,"Inscription")
         return super.onCreateOptionsMenu(menu)
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         if(item.itemId ==0){
             val intent = Intent(this, MainActivity::class.java)
-            startActivity(intent)
-        }
-        else if(item.itemId ==2){
-            val intent=Intent(this, SignInActivity::class.java)
             startActivity(intent)
         }
         return super.onOptionsItemSelected(item)
@@ -122,15 +120,17 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.InfoWind
             mMap.animateCamera(
                 CameraUpdateFactory.newLatLngZoom(usersPositionLatLang, 9f)
             )
+            //Affichage Coordonnés user dans le TextView
+            tv?.text ="Vos Coordonnées : Latitude : $lat - Longitude : $long"
         }
     }
 
 
     ////////////////////////////////////////////////////////////////////////////////////////
-    /////////////////               Localisation                      //////////////////////
+    /////////////////         PERMISSION + LOCALISATION               //////////////////////
     ////////////////////////////////////////////////////////////////////////////////////////
 
-    //Click du bouton attribué avec l'attribut onClick dans le XML
+    /*//Click du bouton attribué avec l'attribut onClick dans le XML
     fun onBtRefreshClick(view: View?) {
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
             == PackageManager.PERMISSION_GRANTED
@@ -138,7 +138,10 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.InfoWind
             //On a la permission
             mMap.isMyLocationEnabled
 
-            //TODO Gérer l'affichage des coordonnées dans le TxtView
+            //Récupération des coordonnées users
+            var lat = getLastKnownLocation()!!.latitude
+            var long = getLastKnownLocation()!!.longitude
+            tv?.text ="Vos Coordonnées : Latitude : $lat - Longitude : $long"
 
         } else {
             //Etape 2 : On affiche la fenêtre de demande de permission
@@ -148,7 +151,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.InfoWind
                 0
             )
         }
-    }
+    }*/
 
    //Callback de la demande de permission
    override fun onRequestPermissionsResult(
@@ -256,22 +259,9 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.InfoWind
                 markerPoint.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED))
                 mMap.addMarker(markerPoint).tag=coordList[j]
                 j++
+                progressBar.isVisible = false
             }
         }
-    }
-
-    fun showCoordinateBeanOnUIThread(coordBean: LatLng) {
-
-        //runOnUiThread { tv?.text = "${coordBean.longitude} - ${coordBean.latitude}" }
-
-        runOnUiThread {
-            //tv?.setText(coordBrean.latitude  coordBrean.longitude)
-            tv?.text = coordBean.latitude.toString() + " - " + coordBean.longitude.toString()
-        }
-    }
-
-    fun showErrorOnUiThread(errorMessage: String?) {
-        runOnUiThread { setError("Une erreur est apparu veuillez réessayer") }
     }
 
     fun showProgressBar(show: Boolean) {
@@ -280,17 +270,6 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.InfoWind
                 progressBar?.setVisibility(View.VISIBLE)
             } else {
                 progressBar?.setVisibility(View.GONE)
-            }
-        }
-    }
-
-    fun setError(errorMessage: String?) {
-        runOnUiThread {
-            tvError?.setText(errorMessage)
-            if (errorMessage == null || errorMessage.trim().length == 0) {
-                tvError?.setVisibility(View.GONE)
-            } else {
-                tvError?.setVisibility(View.GONE)
             }
         }
     }
@@ -316,7 +295,6 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.InfoWind
                 "Latitude : " + maVille.lat_coordinate.toString() + " - Longitude :" + maVille.long_coordinate.toString()
             return view
         }
-
 
         override fun onInfoWindowClick(p0: Marker?) {
             val ville: CoordinateBean? = p0?.tag as CoordinateBean?
