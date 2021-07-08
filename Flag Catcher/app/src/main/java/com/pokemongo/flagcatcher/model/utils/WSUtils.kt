@@ -59,6 +59,20 @@ class WSUtils {
 
         }
 
+        fun getUsers():UserBean {
+            val url = "$SERVER/getUsers"
+            Log.w("MY TAG GetUsers", "URL")
+
+            val request = OkhttpUtils.sendGetOkHttpRequest(url)
+            Log.w("MY TAG GetUsers", "REQUEST")
+
+
+            val user = GSON.fromJson(request,UserBean::class.java)
+            Log.w("MY TAG GetCUser", "$user")
+
+            return user
+        }
+
         fun loginUsers(user:LoginBean) {
 
             val url = "$SERVER/login"
