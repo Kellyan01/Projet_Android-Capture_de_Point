@@ -52,7 +52,7 @@ class SignInActivity : AppCompatActivity() {
         }
         return super.onOptionsItemSelected(item)
     }
-
+    
     fun onSignInClick(view: View) {
 
         thread { try {
