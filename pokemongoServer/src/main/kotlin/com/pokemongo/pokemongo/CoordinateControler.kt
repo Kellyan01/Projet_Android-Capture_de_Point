@@ -64,7 +64,9 @@ class MyRestController(private val coordinateDAO: CoordinateDAO, private val use
         println("/register")
         println("/login name = " + users.name_users + ", password = " + users.password_users + ", mail = " + users.email_users)
         try {
-        usersDAO.save(users)
+            users.password_users = users.password_users.hashCode().toString()
+            println( users.password_users.hashCode())
+            usersDAO.save(users)
         } catch (e: Exception) {
             e.printStackTrace()
             response.status = 518
