@@ -41,10 +41,6 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.InfoWind
     private lateinit var ivMark: ImageView
     private lateinit var tvMark: TextView
 
-    //Création de l'objet toulouse
-    val toulouse = CoordinateBean(1, 1.2938, 43.3512)
-    //Transformation de Toulouse en objet LatLng
-    val toulouseLatLng = LatLng(toulouse.lat_coordinate, toulouse.long_coordinate)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -74,6 +70,10 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.InfoWind
         progressBar = findViewById(R.id.progressBar)
     }
 
+    ////////////////////////////////////
+    ///////////// MENU /////////////////
+    ////////////////////////////////////
+
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         menu?.add(0, 0, 0, "Accueil")
         menu?.add(0,2,0,"Inscription")
@@ -81,7 +81,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.InfoWind
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        if(item.itemId ==1){
+        if(item.itemId ==0){
             val intent = Intent(this, MainActivity::class.java)
             startActivity(intent)
         }
@@ -108,6 +108,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.InfoWind
         //Génère getInfoWindow et getInfoContents
         mMap.setInfoWindowAdapter(this)
 
+        //Affichage du users et centrage caméra sur lui
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
             == PackageManager.PERMISSION_GRANTED        ) {
             mMap.isMyLocationEnabled = true
@@ -165,6 +166,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.InfoWind
         }
     }
 
+    //Récupère les coordonnées de users pour centrer la caméra sur lui dans le onMapReady
     fun getLastKnownLocation(): Location? {
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
             == PackageManager.PERMISSION_DENIED
@@ -293,6 +295,10 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.InfoWind
         }
     }
 
+    ////////////////////////////////////////////////////////
+    ///////////// CUSTOMISATION DES MARKERS ////////////////
+    ////////////////////////////////////////////////////////
+    
         override fun getInfoWindow(p0: Marker?): View? {
             return null
         }
