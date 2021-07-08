@@ -49,50 +49,58 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.InfoWind
         setContentView(binding.root)
 
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
-        val mapFragment = supportFragmentManager
-            .findFragmentById(R.id.map) as SupportMapFragment
+        val mapFragment = supportFragmentManager.findFragmentById(R.id.map) as SupportMapFragment
         mapFragment.getMapAsync(this)
-        /*tv = findViewById(R.id.tv)
-        progressBar = findViewById(R.id.progressBar)*/
 
+        //Création de l'objet toulouse
+        val toulouse = CoordinateBean(1, 1.2938, 43.3512)
+        Log.w("MY TAG toulouse", "CREATION DE TOULOUSE")
+        //Transformation de Toulouse en objet LatLng
+        val toulouseLatLng = LatLng(toulouse.lat_coordinate, toulouse.long_coordinate)
+        Log.w("MY TAG toulouse", "CREATION DE TOULOUSE LATLANG")
 
 
 
         thread {
-            //Affichage simple d'un objet toulouse de type CoordinateBean de coordonnée 43,3512 - 1,2938
-            //Création de l'objet toulouse
-            val toulouse = CoordinateBean(1, 1.2938, 43.3512)
-            Log.w("MY TAG toulouse", "CREATION DE TOULOUSE")
+            try {
+                //Récupération de la liste de point au format ArrayList<CoordinateBean>
+                val pointList = WSUtils.getCoordinate()
+                Log.w("MY TAG PointList", pointList.toString())
 
-            //Transformation de Toulouse en objet LatLng
-            val toulouseLatLng = LatLng(toulouse.lat_coordinate, toulouse.long_coordinate)
-            Log.w("MY TAG toulouse", "CREATION DE TOULOUSE LATLANG")
+                //Affichage simple d'un objet toulouse de type CoordinateBean de coordonnée 43,3512 - 1,2938
 
-            //Modification de la partie graphique
-            runOnUiThread {
-                //On efface les point existant de la MAP
-                mMap.clear()
-                Log.w("MY TAG MAP", "Effacement des points")
+                //Modification de la partie graphique
+                runOnUiThread {
+                    //On efface les point existant de la MAP
+                    mMap.clear()
+                    Log.w("MY TAG MAP", "Effacement des points")
 
-                //Centrage de la caméra sur les coordonnées de Toulouse avec zoom x5
-                mMap.animateCamera(
-                    CameraUpdateFactory.newLatLngZoom(toulouseLatLng, 5f)
-                )
-                Log.w("MY TAG MAP", "Mouvement CAMERA")
+                    //Centrage de la caméra sur les coordonnées de Toulouse avec zoom x5
+                    mMap.animateCamera(
+                        CameraUpdateFactory.newLatLngZoom(toulouseLatLng, 5f)
+                    )
+                    Log.w("MY TAG MAP", "Mouvement CAMERA")
 
-                //Création et Affichage du Marker
-                var markerToulouse = MarkerOptions()
-                markerToulouse.position(
-                    LatLng(toulouse.lat_coordinate, toulouse.long_coordinate)
-                )
-                Log.w("MY TAG MAKER", "CREATION MARKER")
-                markerToulouse.icon(
-                    BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN)
-                )
-                Log.w("MY TAG MAKER", "ICON MARKER")
-                mMap.addMarker(markerToulouse).tag = toulouse
-                Log.w("MY TAG MAKER", "AFFICHAGE MARKER")
+                    //Création et Affichage du Marker
+                    var markerToulouse = MarkerOptions()
+                    markerToulouse.position(
+                        LatLng(toulouse.lat_coordinate, toulouse.long_coordinate)
+                    )
+                    Log.w("MY TAG MAKER", "CREATION MARKER")
+                    markerToulouse.icon(
+                        BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN)
+                    )
+                    Log.w("MY TAG MAKER", "ICON MARKER")
+                    mMap.addMarker(markerToulouse).tag = toulouse
+                    Log.w("MY TAG MAKER", "AFFICHAGE MARKER")
+                }
             }
+            catch (e:Exception){
+                e.printStackTrace()
+                Log.w("MY TAG", "ERROR!!!")
+            }
+
+
         }
         tv = findViewById(R.id.tv)
         tvError = findViewById(R.id.tvError)
@@ -101,7 +109,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.InfoWind
 
 
 
-        Thread {
+        /*Thread {
 
             try {
                 //Va Chercher la donnée
@@ -115,7 +123,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.InfoWind
                 showErrorOnUiThread(e.message)
             }
 
-        }.start()
+        }.start()*/
 
 
 
