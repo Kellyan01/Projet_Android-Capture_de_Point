@@ -80,6 +80,10 @@ class SignInActivity : AppCompatActivity() {
                 } catch (e: Exception) {
                     e.printStackTrace()
                     Log.w("MY TAG", "ERROR 2!!!")
+
+                    val snackbar = Snackbar
+                        .make(view, "Identifiants non valides", Snackbar.LENGTH_LONG)
+                    snackbar.show()
                 }
             }
         }
