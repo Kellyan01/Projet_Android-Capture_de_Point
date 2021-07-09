@@ -90,7 +90,7 @@ class MyRestController(private val coordinateDAO: CoordinateDAO, private val use
     //Gestion de connexion(POST)//
     //http://localhost:8080/login
     //Permet à l'utilisateur de se connecter côté client, après vérification du serveur auprès de la DB.
-    //JSON : { "name_users" : "toto", "password_users": "motdepasse” }
+    //JSON : { "name_users" : "toto", "password_users": "motdepasse" }
     @PostMapping("/login")
     fun login(@RequestBody login : LoginBean, response: HttpServletResponse): Any? {
         println("/login name = " + login.name_users + ", password = " + login.password_users.hashCode())
@@ -105,7 +105,8 @@ class MyRestController(private val coordinateDAO: CoordinateDAO, private val use
             // Génération d'un Id de Session
             checkUserName.idsession_users =  UUID.randomUUID().toString()
             usersDAO.save(checkUserName)
-            return null
+            println(checkUserName.idsession_users)
+            return checkUserName.idsession_users
         } catch (e: Exception) {
             e.printStackTrace()
             response.status = 519
