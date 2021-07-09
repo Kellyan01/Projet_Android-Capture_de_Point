@@ -95,28 +95,17 @@ class MyRestController(private val coordinateDAO: CoordinateDAO, private val use
     fun login(@RequestBody login : LoginBean, response: HttpServletResponse): Any? {
         println("/login name = " + login.name_users + ", password = " + login.password_users.hashCode())
         // ...
-        val checkUserName = usersDAO.findByName_users(login.name_users)
-
         try {
+            val checkUserName = usersDAO.findByName_users(login.name_users) ?: throw Exception("Incorrect username or password.")
             // Vérification du nom
-            if (checkUserName != null) {
 
-                // Vérification du password
-                if (login.password_users.hashCode().toString() == checkUserName?.password_users) {
-                    // Génération d'un Id de Session
-                    val idSess = UUID.randomUUID().toString()
-                    // Stockage de ID en BDD
-
-                        //usersDAO.save(checkUserName)
-
-                    println(idSess)
-                    return "Correct authentication, $idSess"
-                }else {
-                    return "Incorrect username or password"//"Wrong Password"
-                }
-            }else {
-                return "Incorrect username or password."//"Name Unknown"
+            if (login.password_users.hashCode().toString() != checkUserName.password_users) {
+                throw Exception("Incorrect username or password")
             }
+            // Génération d'un Id de Session
+            checkUserName.idsession_users =  UUID.randomUUID().toString()
+            usersDAO.save(checkUserName)
+            return null
         } catch (e: Exception) {
             e.printStackTrace()
             response.status = 519

@@ -22,9 +22,11 @@ data class UsersBean(
     var id_users: Int,
     var name_users: String,
     var password_users: String,
-    var email_users: String) {
+    var email_users: String,
+    var idsession_users:String?
+) {
 
-    constructor() : this(0, "","", "")
+    constructor() : this(0, "","", "", "")
 }
 
 data class ErrorBean(var message : String)
