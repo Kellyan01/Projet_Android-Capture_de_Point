@@ -59,7 +59,6 @@ class MyRestController(private val coordinateDAO: CoordinateDAO, private val use
         }
     }
 
-
     //Enregistrement des joueurs(POST)/
     //http://localhost:8080/register
     //JSON : { "name_users" : "toto", "password_users": "motdepasse", "email_users": "mon@mail.com" }
@@ -69,23 +68,21 @@ class MyRestController(private val coordinateDAO: CoordinateDAO, private val use
         // requetes SQL pour trouver sur le nom et le mail du user existe dans la DB
         val checkUserName = usersDAO.findByName_users(user.name_users)
         val checkUserMail = usersDAO.findByEmail_users(user.email_users)
-        try {
+        return try {
             // Si les 2 champs n'existent pas, l'enregistrement peut s'effectuer
-            if (checkUserName==null && checkUserMail==null) {
-                user.password_users = user.password_users.hashCode().toString()
-                usersDAO.save(user)
-                return "enregistrement ok"
-            }else {
-            // Si les 1 des 2 ||les 2 champs existent dans la DB =>
-                return "Identifiants déjà utilisés"
+            if (checkUserName!=null && checkUserMail!=null) {
+                throw Exception("Identifiants déjà utilisés")
             }
+            // Si les 1 des 2 ||les 2 champs existent dans la DB =>
+            user.password_users = user.password_users.hashCode().toString()
+            usersDAO.save(user)
+            "enregistrement ok"
         } catch (e: Exception) {
             e.printStackTrace()
             response.status = 519
-            return ErrorBean("Erreur : " + e.message)
+            ErrorBean("Erreur : " + e.message)
         }
     }
-
 
     //Gestion de connexion(POST)//
     //http://localhost:8080/login
@@ -100,7 +97,7 @@ class MyRestController(private val coordinateDAO: CoordinateDAO, private val use
             // Vérification du nom
 
             if (login.password_users.hashCode().toString() != checkUserName.password_users) {
-                throw Exception("Incorrect username or password")
+                throw Exception("Incorrect username and/or password")
             }
             // Génération d'un Id de Session
             checkUserName.idsession_users =  UUID.randomUUID().toString()
