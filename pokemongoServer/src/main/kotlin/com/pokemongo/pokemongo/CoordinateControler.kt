@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RestController
+import java.util.*
 import javax.servlet.http.HttpServletResponse
 
 
@@ -89,10 +90,38 @@ class MyRestController(private val coordinateDAO: CoordinateDAO, private val use
     //Gestion de connexion(POST)//
     //http://localhost:8080/login
     //Permet à l'utilisateur de se connecter côté client, après vérification du serveur auprès de la DB.
-    //JSON : { "name" : "toto", "password": "motdepasse” }
+    //JSON : { "name_users" : "toto", "password_users": "motdepasse” }
     @PostMapping("/login")
-    fun login(@RequestBody login : LoginBean) {
-        println(login)
+    fun login(@RequestBody login : LoginBean, response: HttpServletResponse): Any? {
+        println("/login name = " + login.name_users + ", password = " + login.password_users.hashCode())
+        // ...
+        val checkUserName = usersDAO.findByName_users(login.name_users)
+
+        try {
+            // Vérification du nom
+            if (checkUserName != null) {
+
+                // Vérification du password
+                if (login.password_users.hashCode().toString() == checkUserName?.password_users) {
+                    // Génération d'un Id de Session
+                    val idSess = UUID.randomUUID().toString()
+                    // Stockage de ID en BDD
+
+                        //usersDAO.save(checkUserName)
+
+                    println(idSess)
+                    return "Correct authentication, $idSess"
+                }else {
+                    return "Incorrect username or password"//"Wrong Password"
+                }
+            }else {
+                return "Incorrect username or password."//"Name Unknown"
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+            response.status = 519
+            return ErrorBean("Erreur : " + e.message)
+        }
     }
 
 }
