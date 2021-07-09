@@ -76,6 +76,10 @@ class LoginActivity : AppCompatActivity() {
                 } catch (e: Exception) {
                     e.printStackTrace()
                     Log.w("MY TAG", "ERROR CONNEXION!!!")
+
+                    val snackbar = Snackbar
+                        .make(view, "Identifiants incorrects", Snackbar.LENGTH_LONG)
+                    snackbar.show()
                 }
             }
         }
